@@ -1,0 +1,5 @@
+This version of GINY introduces a new model implementation, FING. More details about FING availbale at cytoscape.org.
+
+To use FING:
+
+RootGraph root = fing.model.FingRootGraphFactory.instantiateRootGraph();
