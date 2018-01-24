@@ -30,15 +30,23 @@ public class ScenarioElement {
   
   
   public ScenarioElement(){
-    
+    this.nextElements = new ArrayList<>();
+    this.previousElements = new ArrayList<>();
+    this.core = new ArrayList<>();
   }
   
   public ScenarioElement(String id){
-    
+    this.elementId = id;
+    this.nextElements = new ArrayList<>();
+    this.previousElements = new ArrayList<>();
+    this.core = new ArrayList<>();
   }
   
   public ScenarioElement(String id, ArrayList<String> core){
-    
+    this.elementId = id;
+    this.core = core;
+    this.nextElements = new ArrayList<>();
+    this.previousElements = new ArrayList<>();
   }
 
   public String getElementId() {
@@ -91,7 +99,7 @@ public class ScenarioElement {
     this.core = core;
   }
   
-  public void addCoreElement(String toAdd){
+  public void addCore(String toAdd){
     if(!this.core.contains(toAdd)){
       this.core.add(toAdd);
     }

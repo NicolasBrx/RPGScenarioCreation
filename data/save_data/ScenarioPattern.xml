@@ -1,0 +1,20 @@
+<scenario>
+  <title>The title of the scenario.</title>
+  <elements>
+    <element id="element01">
+      <core>Description de l'element.</core>
+      <core>Quelques</core>
+      <core>mots</core>
+      <core>sur</core>
+      <core>l'element</core>
+      <core>actuel</core>
+    </element>
+    <element id="element02">
+      <core>Que fait un element.</core>
+      <core>Il liste</core>
+      <core>les differentes phases</core>
+      <core>d'une etape</core>
+      <core>dans le scenario</core>
+    </element>
+  </elements>
+</scenario>
