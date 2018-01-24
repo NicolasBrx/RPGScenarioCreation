@@ -1,4 +1,4 @@
-package rpgscenariocreation;
+package scenario;
 
 import java.util.ArrayList;
 
@@ -11,17 +11,17 @@ public class ScenarioElement {
   /**
    * 
    */
-  private int elementId;
+  private String elementId;
   
   /**
    * 
    */
-  private ArrayList<Integer> previousElements;
+  private ArrayList<String> previousElements;
   
   /**
    * 
    */
-  private ArrayList<Integer> nextElements;
+  private ArrayList<String> nextElements;
   
   /**
    * 
@@ -33,27 +33,31 @@ public class ScenarioElement {
     
   }
   
-  public ScenarioElement(int id){
+  public ScenarioElement(String id){
+    
+  }
+  
+  public ScenarioElement(String id, ArrayList<String> core){
     
   }
 
-  public int getElementId() {
+  public String getElementId() {
     return elementId;
   }
 
-  public void setElementId(int elementId) {
+  public void setElementId(String elementId) {
     this.elementId = elementId;
   }
 
-  public ArrayList<Integer> getPreviousElements() {
+  public ArrayList<String> getPreviousElements() {
     return previousElements;
   }
 
-  public void setPreviousElements(ArrayList<Integer> previousElements) {
+  public void setPreviousElements(ArrayList<String> previousElements) {
     this.previousElements = previousElements;
   }
   
-  public void addPreviousElement(int toAdd){
+  public void addPreviousElement(String toAdd){
     if(!this.previousElements.contains(toAdd)){
       this.previousElements.add(toAdd);
     }
@@ -62,15 +66,15 @@ public class ScenarioElement {
     }
   }
 
-  public ArrayList<Integer> getNextElements() {
+  public ArrayList<String> getNextElements() {
     return nextElements;
   }
 
-  public void setNextElements(ArrayList<Integer> nextElements) {
+  public void setNextElements(ArrayList<String> nextElements) {
     this.nextElements = nextElements;
   }
   
-  public void addNextElement(int toAdd){
+  public void addNextElement(String toAdd){
     if(!this.nextElements.contains(toAdd)){
       this.nextElements.add(toAdd);
     }

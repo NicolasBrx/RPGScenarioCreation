@@ -1,16 +1,24 @@
 package ihm;
 
+import scenario.Scenario;
+
 /**
  *
- * @author nicolas
+ * @author Nicolas Brax
  */
 public class RPGScenarioCreationIHM extends javax.swing.JFrame {
 
+  private Scenario myScenario = new Scenario();
+  
   /**
    * Creates new form RPGScenarioCreationIHM
    */
   public RPGScenarioCreationIHM() {
     initComponents();
+  }
+  
+  public Scenario getScenario(){
+    return this.myScenario;
   }
 
   /**
@@ -22,21 +30,166 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    jpanelGraphView = new javax.swing.JPanel();
+    jLabel1 = new javax.swing.JLabel();
+    jLabel2 = new javax.swing.JLabel();
+    jtxtElementId = new javax.swing.JTextField();
+    jScrollPane1 = new javax.swing.JScrollPane();
+    jtxtElementCore = new javax.swing.JTextArea();
+    jScrollPane2 = new javax.swing.JScrollPane();
+    jlistElement = new javax.swing.JList<>();
+    jbtnAddElement = new javax.swing.JButton();
+    jbtnRemoveElement = new javax.swing.JButton();
+    jbtnRandomGeneration = new javax.swing.JButton();
+    jLabel3 = new javax.swing.JLabel();
+    jtextNbElement = new javax.swing.JTextField();
+    jLabel4 = new javax.swing.JLabel();
+    jcbbDifficulty = new javax.swing.JComboBox<>();
+
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+    setTitle("RPG Scenario Creation and Visualisation v 0.0");
+    setMaximumSize(new java.awt.Dimension(1024, 768));
+    setMinimumSize(new java.awt.Dimension(1024, 768));
+    setPreferredSize(new java.awt.Dimension(1024, 768));
+    setResizable(false);
+
+    jpanelGraphView.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+    javax.swing.GroupLayout jpanelGraphViewLayout = new javax.swing.GroupLayout(jpanelGraphView);
+    jpanelGraphView.setLayout(jpanelGraphViewLayout);
+    jpanelGraphViewLayout.setHorizontalGroup(
+      jpanelGraphViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 533, Short.MAX_VALUE)
+    );
+    jpanelGraphViewLayout.setVerticalGroup(
+      jpanelGraphViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 0, Short.MAX_VALUE)
+    );
+
+    jLabel1.setText("Element Id: ");
+
+    jLabel2.setText("Element Core: ");
+
+    jtxtElementCore.setColumns(20);
+    jtxtElementCore.setRows(5);
+    jScrollPane1.setViewportView(jtxtElementCore);
+
+    jScrollPane2.setViewportView(jlistElement);
+
+    jbtnAddElement.setText("Add Element");
+    jbtnAddElement.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jbtnAddElementActionPerformed(evt);
+      }
+    });
+
+    jbtnRemoveElement.setText("Remove Element");
+    jbtnRemoveElement.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jbtnRemoveElementActionPerformed(evt);
+      }
+    });
+
+    jbtnRandomGeneration.setText("Random Generation");
+
+    jLabel3.setText("Number of Element:");
+
+    jLabel4.setText("Difficulty:");
+
+    jcbbDifficulty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Piece of Cake", "Easy", "Normal", "Hard", "Hell on Earth" }));
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 400, Short.MAX_VALUE)
+      .addGroup(layout.createSequentialGroup()
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addGroup(layout.createSequentialGroup()
+                    .addComponent(jLabel1)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jtxtElementId, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                  .addComponent(jLabel2)
+                  .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addGroup(layout.createSequentialGroup()
+                    .addComponent(jbtnAddElement, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jbtnRemoveElement)))
+                .addGap(14, 14, 14))
+              .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(jLabel3)
+                  .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(jcbbDifficulty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                  .addComponent(jtextNbElement, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))))
+          .addGroup(layout.createSequentialGroup()
+            .addGap(70, 70, 70)
+            .addComponent(jbtnRandomGeneration)))
+        .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addGap(18, 18, 18)
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 300, Short.MAX_VALUE)
+      .addGroup(layout.createSequentialGroup()
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+          .addGroup(layout.createSequentialGroup()
+            .addGap(39, 39, 39)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jLabel1)
+              .addComponent(jtxtElementId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jLabel2)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jbtnRemoveElement)
+              .addComponent(jbtnAddElement))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 331, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jLabel3)
+              .addComponent(jtextNbElement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jLabel4)
+              .addComponent(jcbbDifficulty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGap(18, 18, 18)
+            .addComponent(jbtnRandomGeneration))
+          .addGroup(layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 648, Short.MAX_VALUE))))
+        .addContainerGap(108, Short.MAX_VALUE))
     );
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
+
+  private void jbtnAddElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddElementActionPerformed
+    // retrieve the value to add the element to the scenario
+    
+    // add the id to the list
+    
+    // add the node on the graph visualisation
+  }//GEN-LAST:event_jbtnAddElementActionPerformed
+
+  private void jbtnRemoveElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRemoveElementActionPerformed
+    // remove the element from the scenario
+    
+    // remove the id from the list
+    
+    // remove the node from the graph visualisation
+  }//GEN-LAST:event_jbtnRemoveElementActionPerformed
 
   /**
    * @param args the command line arguments
@@ -74,5 +227,20 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JLabel jLabel1;
+  private javax.swing.JLabel jLabel2;
+  private javax.swing.JLabel jLabel3;
+  private javax.swing.JLabel jLabel4;
+  private javax.swing.JScrollPane jScrollPane1;
+  private javax.swing.JScrollPane jScrollPane2;
+  private javax.swing.JButton jbtnAddElement;
+  private javax.swing.JButton jbtnRandomGeneration;
+  private javax.swing.JButton jbtnRemoveElement;
+  private javax.swing.JComboBox<String> jcbbDifficulty;
+  private javax.swing.JList<String> jlistElement;
+  private javax.swing.JPanel jpanelGraphView;
+  private javax.swing.JTextField jtextNbElement;
+  private javax.swing.JTextArea jtxtElementCore;
+  private javax.swing.JTextField jtxtElementId;
   // End of variables declaration//GEN-END:variables
 }
