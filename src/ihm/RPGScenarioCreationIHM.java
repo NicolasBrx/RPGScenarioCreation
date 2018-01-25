@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import scenario.Scenario;
@@ -49,6 +50,13 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   
   public Scenario getScenario(){
     return this.myScenario;
+  }
+  
+  public void saveScenario(){
+    XmlTool xml = new XmlTool();
+    xml.saveScenario(this.myScenario);
+    this.setTitle(this.getTitle().substring(1));
+    this.saveNeeded = false;
   }
 
   /**
@@ -246,11 +254,11 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-              .addComponent(jbtnRemoveElement)
-              .addComponent(jbtnAddElement))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(jbtnAddElement, javax.swing.GroupLayout.Alignment.TRAILING)
+              .addComponent(jbtnRemoveElement))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jButton1)
               .addComponent(jButton3))
             .addGap(63, 63, 63)
@@ -299,11 +307,17 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     }
     
     //todo: compute of an id if there is no text set
-    this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
+    String id;
+    if(jtxtElementId.getText().isEmpty()){
+      id = this.myScenario.addElement(tmpCore);
+    }
+    else{
+      id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
+    }
     
     // add the id to the list of element
-    if(!elementList.contains(jtxtElementId.getText())){
-      elementList.addElement(jtxtElementId.getText());
+    if(!elementList.contains(id)){
+      elementList.addElement(id);
       jlistElement.setModel(elementList);
     }
     
@@ -371,8 +385,12 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
 
   private void jbtnLoadScenarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLoadScenarioActionPerformed
     XmlTool xml = new XmlTool();
-    this.myScenario = xml.loadScenario("ScenarioPattern.xml");
+    this.myScenario = xml.loadScenario((String)jcbbScenarioChoice.getSelectedItem());
     
+    jtxtElementId.setText("");
+    jtxtElementCore.setText("");
+    jtextScenarioTitle.setText("");
+    elementList.clear();
     jlblScenarioTitle.setText(this.myScenario.getTitle());  
     for(String id : this.myScenario.getWholeScenario().keySet()){
       elementList.addElement(id);
@@ -382,14 +400,19 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }//GEN-LAST:event_jbtnLoadScenarioActionPerformed
 
   private void jbtnQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnQuitActionPerformed
-    System.exit(0);
+    
+    if(this.saveNeeded){
+      int dialogButton = JOptionPane.YES_NO_OPTION;
+      int dialogResult = JOptionPane.showConfirmDialog (null, "Would you like to save before quit?","Warning",dialogButton);
+      if(dialogResult == JOptionPane.YES_OPTION){
+        saveScenario();
+      }
+    }
+    System.exit(0);  
   }//GEN-LAST:event_jbtnQuitActionPerformed
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    XmlTool xml = new XmlTool();
-    xml.saveScenario(this.myScenario);
-    this.setTitle(this.getTitle().substring(1));
-    this.saveNeeded = false;
+    saveScenario();
   }//GEN-LAST:event_jButton1ActionPerformed
 
   /**

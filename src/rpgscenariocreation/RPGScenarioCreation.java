@@ -1,5 +1,7 @@
 package rpgscenariocreation;
 
+import ihm.RPGScenarioCreationIHM;
+
 /**
  * This project is dedicated to Scenario creation for several tabletop RPG.
  * Will ideally include some learning to adapt to user preference.
@@ -11,6 +13,9 @@ public class RPGScenarioCreation {
    * @param args the command line arguments
    */
   public static void main(String[] args) {
+    
+    RPGScenarioCreationIHM ihm = new RPGScenarioCreationIHM();
+    ihm.setVisible(true);
 
     /*
       Un scenario c'est :

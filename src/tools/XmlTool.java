@@ -4,8 +4,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom2.Document;
@@ -40,7 +38,8 @@ public class XmlTool {
   private final String dataPath = System.getProperty("user.dir") + "/data/";
   
   /**
-   * 
+   * The path of the folder that contains all the scenario saved and that can
+   * be loaded.
    */
   private final String scenarioSaves = dataPath + "save_data/";
   
@@ -60,17 +59,24 @@ public class XmlTool {
   /** Tool Methods                                                           **/
   /****************************************************************************/
   
-  
   /**
+   * This method provides a list of all the scenario stored in the save folder.
+   * Each file is named after the title of the scenario so the file name is 
+   * then deconstructed in order to provide the right scenario name.
    * 
-   * @return 
+   * @return An array list containing all the scenario in the save folder.
    */
   public ArrayList<String> getAllScenarioTitles(){
     ArrayList<String> toReturn = new ArrayList<>();
     for(File f : new File(scenarioSaves).listFiles()){
       if(f.isFile()){
-        // todo to have not raw filename
-        toReturn.add(f.getName());
+        String s = f.getName().substring(0,f.getName().lastIndexOf('.'));   // remove the file extension
+        String[] parts = s.split("(?=\\p{Upper})");                         // cut the string on upper case
+        String notRawName = "";                                             
+        for(int i = 0; i < parts.length ; ++i){
+          notRawName += parts[i] + (i == (parts.length - 1) ? "" : " ");    // add each part to the string to return
+        }
+        toReturn.add(notRawName);
       }
     }
     
@@ -78,23 +84,32 @@ public class XmlTool {
   }
   
   /**
+   * This function retrieve the different elements of a scenario and load them in 
+   * the scenario that is returned.
    * 
-   * @param notRawFilename
-   * @return 
+   * It used the name of the scenario as a parameter. This name is then used
+   * to rebuild the filename.
+   * 
+   * @param notRawFilename the name of the scenario.
+   * @return the scenario loaded after the name in parameter.
    */
   public Scenario loadScenario(String notRawFilename){
-    Scenario toReturn = new Scenario();
-    //todo: transform file name to have the good one
-    File inputFile = new File(scenarioSaves + notRawFilename);
+    Scenario toReturn = new Scenario();                                             // the element to return
+    String[] part = notRawFilename.split(" ");                                      // remove all white space in the scenario name
+    String rawFilename = "";
+    for(int i = 0 ; i < part.length ; ++i){                                         // for each word in the scenario name
+      rawFilename += (part[i].substring(0,1).toUpperCase() + part[i].substring(1)); // change the first letter to upper case
+                                                                                    // and concatene it
+    }
+    File inputFile = new File(scenarioSaves + rawFilename + ".xml");                // add the file extension
+    
+    /* XML BLOCK */ 
     try{
       SAXBuilder saxBuilder = new SAXBuilder();
       Document document = saxBuilder.build(inputFile);
-      
       Element root = document.getRootElement();
       toReturn.setTitle(root.getChildText("title"));
-      
       List<Element> elements = root.getChild("elements").getChildren();
-      
       for(Element element : elements){
         String elementId;
         ArrayList<String> coresToAdd = new ArrayList<>();
@@ -109,36 +124,40 @@ public class XmlTool {
     catch(JDOMException | IOException e){
       //e.printStackTrace();
     }//catch
+    /* END of XML BLOCK */
+    
     return toReturn;
   }
   
   /**
+   * This function save a scenario in a file named after the scenario title/name.
    * 
-   * @param toSave 
+   * @param toSave the scenario to save.
    */
   public void saveScenario(Scenario toSave){
     
+    String[] part = toSave.getTitle().split(" ");                                   // remove all white space in the scenario name
+    String rawFilename = "";
+    for(int i = 0 ; i < part.length ; ++i){                                         // for each word in the scenario name
+      rawFilename += (part[i].substring(0,1).toUpperCase() + part[i].substring(1)); // change the first letter to upper case
+                                                                                    // and concatene it
+    }
+    File outputFile = new File(scenarioSaves + rawFilename + ".xml");               // add the file extension
+      
+    /* XML BLOCK */
     try{
-      //todo: work title to set a specific name
-      File outputFile = new File(scenarioSaves + toSave.getTitle().replaceAll(" ", "") + ".xml");
       if (outputFile.exists()) {
        File renamed = new File(outputFile + ".bk");
        outputFile.renameTo(renamed);
        outputFile.delete();
       }
       outputFile.createNewFile();
-    
       DataOutputStream stream = new DataOutputStream(new FileOutputStream(outputFile));
-    
-      // root
-      Element scenario = new Element("scenario");
+      Element scenario = new Element("scenario");   // root element
       Document doc = new Document(scenario);
-    
       Element title = new Element("title");
       title.setText(toSave.getTitle());
-
       Element elements = new Element("elements");
-    
       for(String id : toSave.getWholeScenario().keySet()){
         Element element = new Element("element").setAttribute("id", id);
         for(String sCore : toSave.getElement(id).getCore()){
@@ -147,83 +166,17 @@ public class XmlTool {
         }//for core in getCore
         elements.addContent(element);
       }//for id in wholeScenario
-
       scenario.addContent(title);
       scenario.addContent(elements);
-      //doc.getRootElement().addContent(player);
-
       XMLOutputter xmlOut = new XMLOutputter();
       xmlOut.setFormat(Format.getPrettyFormat());
       xmlOut.output(doc, stream);
       stream.close();
-      
     }// try
     catch (IOException ioe) {
       System.err.println("ECHEC!");
     }
+    /* END of XML BLOCK */
   }
   
 }
-
-/*
-
-// physical
-        Element age = new Element("age");
-        age.setText(Integer.toString(cts.getCharacterAge()));
-        character.addContent(age);
-        Element weight = new Element("weight");
-        weight.setText(Double.toString(cts.getCharacterWeight()));
-        character.addContent(weight);
-        Element size = new Element("size");
-        size.setText(Double.toString(cts.getCharacterSize()));
-        character.addContent(size);
-        Element gender = new Element("gender");
-        gender.setText(cts.isFemale() ? "femme" : "homme");
-        character.addContent(gender);
-
-        // attributes
-        HashMap<String, Integer> tmp = cts.getAttributes();
-        for (String cle : tmp.keySet()) {
-          Element tmpElement = new Element(cle);
-          tmpElement.setText(Integer.toString(tmp.get(cle)));
-          character.addContent(tmpElement);
-        }
-
-        // game type specific
-        switch (cts.getGameType()) {
-          case "Patient 13":
-            character.setAttribute(new Attribute("surname", ((P13_Character) cts).getSurname()));
-            Element seniority = new Element("seniority");
-            character.addContent(seniority);
-            seniority.setText(Integer.toString(((P13_Character) cts).getSeniority()));
-            Element supervisor = new Element("supervisor");
-            character.addContent(supervisor);
-            supervisor.setText(((P13_Character) cts).getSupervisor());
-            Element room = new Element("room");
-            room.setText(((P13_Character) cts).getRoom());
-            character.addContent(room);
-            Element lineaments = new Element("lineaments");
-            for(String cle : ((P13_Character) cts).getLineaments().keySet()){
-              Element tmpL = new Element(cle);
-              tmpL.setText(Integer.toString(((P13_Character) cts).getLineaments().get(cle)));
-              lineaments.addContent(tmpL);
-            }
-            character.addContent(lineaments);
-            break;
-            
-          case "AD&D":
-            break;
-            
-          case "Feng Shui":
-            break;
-            
-          case "Shadowrun":
-            break;
-            
-          case "Cthulhu":
-            break;
-
-          default:
-            break;
-
-*/
