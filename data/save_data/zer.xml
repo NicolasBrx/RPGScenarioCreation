@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scenario>
-  <title>zer</title>
-  <elements>
-    <element id="zer">
-      <core>zerzer</core>
-    </element>
-  </elements>
-</scenario>

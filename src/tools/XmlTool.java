@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom2.Document;
@@ -58,26 +60,44 @@ public class XmlTool {
   /** Tool Methods                                                           **/
   /****************************************************************************/
   
+  
   /**
    * 
-   * @param filename
    * @return 
    */
-  public Scenario loadScenario(String filename){
+  public ArrayList<String> getAllScenarioTitles(){
+    ArrayList<String> toReturn = new ArrayList<>();
+    for(File f : new File(scenarioSaves).listFiles()){
+      if(f.isFile()){
+        // todo to have not raw filename
+        toReturn.add(f.getName());
+      }
+    }
+    
+    return toReturn;
+  }
+  
+  /**
+   * 
+   * @param notRawFilename
+   * @return 
+   */
+  public Scenario loadScenario(String notRawFilename){
     Scenario toReturn = new Scenario();
-    File inputFile = new File(scenarioSaves + filename);
+    //todo: transform file name to have the good one
+    File inputFile = new File(scenarioSaves + notRawFilename);
     try{
       SAXBuilder saxBuilder = new SAXBuilder();
       Document document = saxBuilder.build(inputFile);
+      
       Element root = document.getRootElement();
-      System.out.println("OK");
       toReturn.setTitle(root.getChildText("title"));
-      System.out.println("OK");
+      
       List<Element> elements = root.getChild("elements").getChildren();
-      System.out.println("OK");
-      String elementId;
-      ArrayList<String> coresToAdd = new ArrayList<>();
+      
       for(Element element : elements){
+        String elementId;
+        ArrayList<String> coresToAdd = new ArrayList<>();
         elementId = element.getAttributeValue("id");
         List<Element> cores = element.getChildren();
         for(Element core : cores){
@@ -99,42 +119,43 @@ public class XmlTool {
   public void saveScenario(Scenario toSave){
     
     try{
-    File outputFile = new File(scenarioSaves + toSave.getTitle().replaceAll(" ", "") + ".xml");
-    if (outputFile.exists()) {
-      File renamed = new File(outputFile + ".bk");
-      outputFile.renameTo(renamed);
-      outputFile.delete();
-    }
-    outputFile.createNewFile();
+      //todo: work title to set a specific name
+      File outputFile = new File(scenarioSaves + toSave.getTitle().replaceAll(" ", "") + ".xml");
+      if (outputFile.exists()) {
+       File renamed = new File(outputFile + ".bk");
+       outputFile.renameTo(renamed);
+       outputFile.delete();
+      }
+      outputFile.createNewFile();
     
-    DataOutputStream stream = new DataOutputStream(new FileOutputStream(outputFile));
+      DataOutputStream stream = new DataOutputStream(new FileOutputStream(outputFile));
     
-    // root
-    Element scenario = new Element("scenario");
-    Document doc = new Document(scenario);
+      // root
+      Element scenario = new Element("scenario");
+      Document doc = new Document(scenario);
     
-    Element title = new Element("title");
-    title.setText(toSave.getTitle());
+      Element title = new Element("title");
+      title.setText(toSave.getTitle());
 
-    Element elements = new Element("elements");
+      Element elements = new Element("elements");
     
-    for(String id : toSave.getWholeScenario().keySet()){
-      Element element = new Element("element").setAttribute("id", id);
-      for(String sCore : toSave.getElement(id).getCore()){
-        Element core = new Element("core").setText(sCore);
-        element.addContent(core);
-      }//for core in getCore
-      elements.addContent(element);
-    }//for id in wholeScenario
+      for(String id : toSave.getWholeScenario().keySet()){
+        Element element = new Element("element").setAttribute("id", id);
+        for(String sCore : toSave.getElement(id).getCore()){
+          Element core = new Element("core").setText(sCore);
+          element.addContent(core);
+        }//for core in getCore
+        elements.addContent(element);
+      }//for id in wholeScenario
 
-    scenario.addContent(title);
-    scenario.addContent(elements);
-    //doc.getRootElement().addContent(player);
+      scenario.addContent(title);
+      scenario.addContent(elements);
+      //doc.getRootElement().addContent(player);
 
-    XMLOutputter xmlOut = new XMLOutputter();
-    xmlOut.setFormat(Format.getPrettyFormat());
-    xmlOut.output(doc, stream);
-    stream.close();
+      XMLOutputter xmlOut = new XMLOutputter();
+      xmlOut.setFormat(Format.getPrettyFormat());
+      xmlOut.output(doc, stream);
+      stream.close();
       
     }// try
     catch (IOException ioe) {

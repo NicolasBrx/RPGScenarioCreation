@@ -32,6 +32,13 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     ImageIcon icon = new ImageIcon(iconURL);
     this.setIconImage(icon.getImage());
     
+    XmlTool xml = new XmlTool();
+    for(String s : xml.getAllScenarioTitles()){
+      jcbbScenarioChoice.addItem(s);
+    }
+    
+    jlblScenarioTitle.setText("");
+    
     // because it is not implemented yet.
     jcbbDifficulty.setEnabled(false);
     jtextNbElement.setEnabled(false);
@@ -74,13 +81,11 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     jtextScenarioTitle = new javax.swing.JTextField();
     jbtnLoadScenario = new javax.swing.JButton();
     jButton1 = new javax.swing.JButton();
-    jButton2 = new javax.swing.JButton();
-    jlblElementId = new javax.swing.JLabel();
-    jlblElementDesc = new javax.swing.JLabel();
     jbtnQuit = new javax.swing.JButton();
+    jlblScenarioTitle = new javax.swing.JLabel();
+    jButton3 = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    setMaximumSize(new java.awt.Dimension(1024, 677));
     setMinimumSize(new java.awt.Dimension(1024, 677));
     setResizable(false);
 
@@ -152,23 +157,16 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       }
     });
 
-    jButton2.setText("Test");
-    jButton2.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        jButton2ActionPerformed(evt);
-      }
-    });
-
-    jlblElementId.setText("jLabel7");
-
-    jlblElementDesc.setText("jLabel7");
-
     jbtnQuit.setText("Quit");
     jbtnQuit.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         jbtnQuitActionPerformed(evt);
       }
     });
+
+    jlblScenarioTitle.setText("jLabel7");
+
+    jButton3.setText("Clean Fields");
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -193,13 +191,13 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
               .addComponent(jbtnLoadScenario, javax.swing.GroupLayout.Alignment.TRAILING)
               .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
               .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jbtnAddElement, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(56, 56, 56)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addComponent(jButton2)
-                  .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jbtnRemoveElement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                  .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jbtnAddElement, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                  .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jbtnRemoveElement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
               .addComponent(jbtnRandomGeneration, javax.swing.GroupLayout.Alignment.TRAILING)
               .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -213,20 +211,21 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addGap(24, 24, 24)
             .addComponent(jbtnQuit)))
         .addGap(21, 21, 21)
-        .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-          .addComponent(jlblElementId, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jlblElementDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        .addContainerGap())
+          .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+        .addGap(18, 18, 18))
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(layout.createSequentialGroup()
             .addGap(17, 17, 17)
             .addComponent(jLabel5)
@@ -251,10 +250,10 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
               .addComponent(jbtnRemoveElement)
               .addComponent(jbtnAddElement))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(jButton1)
-            .addGap(18, 18, 18)
-            .addComponent(jButton2)
-            .addGap(21, 21, 21)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jButton1)
+              .addComponent(jButton3))
+            .addGap(63, 63, 63)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
               .addComponent(jLabel3)
               .addComponent(jtextNbElement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -268,11 +267,9 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addComponent(jbtnQuit)
             .addGap(8, 8, 8))
           .addGroup(layout.createSequentialGroup()
-            .addComponent(jlblElementId)
+            .addComponent(jlblScenarioTitle)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(jlblElementDesc)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane2)))
+            .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         .addContainerGap())
     );
 
@@ -300,11 +297,20 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     catch(BadLocationException e){
       e.printStackTrace();
     }
+    
+    //todo: compute of an id if there is no text set
     this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
     
     // add the id to the list of element
-    elementList.addElement(jtxtElementId.getText());
-    jlistElement.setModel(elementList);
+    if(!elementList.contains(jtxtElementId.getText())){
+      elementList.addElement(jtxtElementId.getText());
+      jlistElement.setModel(elementList);
+    }
+    
+    // set the title if it has not been made before
+    if(jlblScenarioTitle.getText().equalsIgnoreCase("")){
+      jlblScenarioTitle.setText(this.myScenario.getTitle());  
+    }
     
     // add the node on the graph visualisation
     
@@ -334,20 +340,45 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     // remove the node from the graph visualisation
   }//GEN-LAST:event_jbtnRemoveElementActionPerformed
 
-  private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    System.out.println(this.myScenario.toString());
-  }//GEN-LAST:event_jButton2ActionPerformed
-
   private void jlistElementMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jlistElementMouseClicked
     if(evt.getClickCount() == 2){
-      jlblElementId.setText("Id: " + this.myScenario.getElement(jlistElement.getSelectedValue()).getElementId());
-      jlblElementDesc.setText("Desc: " + this.myScenario.getElement(jlistElement.getSelectedValue()).getCore().get(0));
+      jtxtElementId.setText(this.myScenario.getElement(jlistElement.getSelectedValue()).getElementId());
+      jtxtElementCore.setText(this.myScenario.getElement(jlistElement.getSelectedValue()).getCore().get(0));
+      
+      Document doc = jtxtElementCore.getDocument();
+      try{
+        doc.remove(0, doc.getLength());
+      }
+      catch(BadLocationException e){
+        e.printStackTrace();
+      }
+      for(String s : this.myScenario.getElement(jlistElement.getSelectedValue()).getCore()){
+        try{
+          doc.insertString(doc.getLength(),s,null);
+          doc.insertString(doc.getLength(),"\r\n",null);
+        }
+        catch(BadLocationException e){
+          e.printStackTrace();
+        }
+      }
+      
+      // color or border of the node and links
+      
+      // fill the left part to allow remove and edition
+      
     }
   }//GEN-LAST:event_jlistElementMouseClicked
 
   private void jbtnLoadScenarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLoadScenarioActionPerformed
     XmlTool xml = new XmlTool();
     this.myScenario = xml.loadScenario("ScenarioPattern.xml");
+    
+    jlblScenarioTitle.setText(this.myScenario.getTitle());  
+    for(String id : this.myScenario.getWholeScenario().keySet()){
+      elementList.addElement(id);
+    }
+    jlistElement.setModel(elementList);
+    
   }//GEN-LAST:event_jbtnLoadScenarioActionPerformed
 
   private void jbtnQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnQuitActionPerformed
@@ -398,7 +429,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton jButton1;
-  private javax.swing.JButton jButton2;
+  private javax.swing.JButton jButton3;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
@@ -414,8 +445,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   private javax.swing.JButton jbtnRemoveElement;
   private javax.swing.JComboBox<String> jcbbDifficulty;
   private javax.swing.JComboBox<String> jcbbScenarioChoice;
-  private javax.swing.JLabel jlblElementDesc;
-  private javax.swing.JLabel jlblElementId;
+  private javax.swing.JLabel jlblScenarioTitle;
   private javax.swing.JList<String> jlistElement;
   private javax.swing.JPanel jpanelGraphView;
   private javax.swing.JTextField jtextNbElement;
