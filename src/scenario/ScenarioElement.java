@@ -138,6 +138,16 @@ public class ScenarioElement {
       // already in
     }
   }
+  
+  /**
+   * Return true if the current element have beforehand elements within the
+   * current scenario.
+   * 
+   * @return true if the element have previous ones in the scenario.
+   */
+  public boolean hasPrevious(){
+    return (this.previousElements != null && !this.previousElements.isEmpty());
+  }
 
   /**
    * Give the next elements of the current element within the scenario.
@@ -175,6 +185,16 @@ public class ScenarioElement {
     else{
       // already in
     }
+  }
+  
+  /**
+   * Return true if the current element have consequence elements within the
+   * current scenario.
+   * 
+   * @return true if the element have next ones in the scenario.
+   */
+  public boolean hasNext(){
+    return (this.nextElements != null && !this.nextElements.isEmpty());
   }
 
   /**

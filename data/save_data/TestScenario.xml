@@ -1,14 +1,9 @@
 <scenario>
-  <title>The title of the scenario.</title>
+  <title>Test Scenario.</title>
   <elements>
     <element id="element01">
       <cores>
-        <core>Description de l'element.</core>
-        <core>Quelques</core>
-        <core>mots</core>
-        <core>sur</core>
-        <core>l'element</core>
-        <core>actuel</core>
+        <core>The first element.</core>
       </cores>
       <previousIds>
       </previousIds>
@@ -18,14 +13,21 @@
     </element>
     <element id="element02">
       <cores>
-        <core>Que fait un element.</core>
-        <core>Il liste</core>
-        <core>les differentes phases</core>
-        <core>d'une etape</core>
-        <core>dans le scenario</core>
+        <core>The second element.</core>
       </cores>
       <previousIds>
         <previousId>element01</previousId>
+      </previousIds>
+      <nextIds>
+        <nextId>element03</nextId>
+      </nextIds>
+    </element>
+    <element id="element03">
+      <cores>
+        <core>The third element.</core>
+      </cores>
+      <previousIds>
+        <previousId>element02</previousId>
       </previousIds>
       <nextIds>
       </nextIds>

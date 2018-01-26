@@ -1,0 +1,31 @@
+node{
+  fill-color: black;
+  text-alignment: at-right;
+  size: 15;
+  shape: rounded-box;
+}
+
+node.selected{
+  fill-color: blue;
+}
+
+node.unselected{
+  fill-color: red;
+}
+
+edge{
+  arrow-shape: arrow;
+}
+
+edge.selected{
+  size: 10;
+  shape: angle;
+  fill-color: blue;
+}
+
+edge.unselected{
+  
+}
+
+/* http://graphstream-project.org/doc/Advanced-Concepts/GraphStream-CSS-Reference/ */
+/* http://graphstream-project.org/doc/Tutorials/Storing-retrieving-and-displaying-data-in-graphs/ */

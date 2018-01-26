@@ -1,5 +1,6 @@
 package ihm;
 
+import graphstream.MyGraph;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
@@ -7,51 +8,100 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
 import scenario.Scenario;
 import tools.XmlTool;
 
 /**
- *
+ * Main user interface class for creation and management of a Scenario for
+ * tabletop rpg or various history.
+ * 
  * @author Nicolas Brax
  */
 public class RPGScenarioCreationIHM extends javax.swing.JFrame {
 
+  /****************************************************************************/
+  /** Private Attributes                                                     **/
+  /****************************************************************************/
+  
+  /**
+   * The current scenario to be created and displayed into the user interface.
+   */
   private Scenario myScenario = new Scenario();
   
+  /**
+   * A variable to handle the several id to be displayed into the left list of
+   * the user interface.
+   */
   private DefaultListModel elementList = new DefaultListModel();
   
+  /**
+   * An attribute to indicate the scenario state, i.e. wether it is saved or not.
+   */
   private boolean saveNeeded;
   
   /**
+   * The object that contains the graph representing the current loaded or
+   * created scenario.
+   */
+  private MyGraph scenarioGraph;
+  
+  /**
+   * For easy code, store the id of the currently selected node if one is.
+   */
+  private String currentSelectedNode;
+    
+  
+  /****************************************************************************/
+  /** Private Attributes                                                     **/
+  /****************************************************************************/
+  
+  /**
+   * Default Constructor
    * Creates new form RPGScenarioCreationIHM
    */
   public RPGScenarioCreationIHM() {
-    initComponents();
+    initComponents();                                     // auto-generated
     
-    this.setTitle("RPGScenario Management v.0.1.0");
-    URL iconURL = getClass().getResource("favicon.png");
+    this.setTitle("RPGScenario Management v.0.1.0");      // title of the frame and software
+    URL iconURL = getClass().getResource("favicon.png");  // icon for the frame
     ImageIcon icon = new ImageIcon(iconURL);
     this.setIconImage(icon.getImage());
     
-    XmlTool xml = new XmlTool();
+    XmlTool xml = new XmlTool();                          // retrieving all the available scenarii
     for(String s : xml.getAllScenarioTitles()){
-      jcbbScenarioChoice.addItem(s);
+      jcbbScenarioChoice.addItem(s);                      // to be put into a combo box
     }
     
     jlblScenarioTitle.setText("");
+    
+    // graph viewer initialisation
+    scenarioGraph = new MyGraph();
+    scenarioGraph.display();
+    currentSelectedNode = "";
     
     // because it is not implemented yet.
     jcbbDifficulty.setEnabled(false);
     jtextNbElement.setEnabled(false);
     jbtnRandomGeneration.setEnabled(false);
     
-    this.saveNeeded = false;
+    this.saveNeeded = false;                              // initial state, no save is needed obviously
   }
   
+  /**
+   * Give the current scenario related to the launched user interface.
+   * 
+   * @return the current scenario
+   */
   public Scenario getScenario(){
     return this.myScenario;
   }
   
+  /**
+   * Save the current scenario into an xml file named after the title of the
+   * scenario. 
+   */
   public void saveScenario(){
     XmlTool xml = new XmlTool();
     xml.saveScenario(this.myScenario);
@@ -59,6 +109,10 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     this.saveNeeded = false;
   }
 
+  /****************************************************************************/
+  /** The generated methods from NetBeans Swing Interface                    **/
+  /****************************************************************************/
+  
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -285,8 +339,6 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void jbtnAddElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddElementActionPerformed
-    // retrieve the value to add the element to the scenario
-    
     // set the title if it has not be done yet
     if(this.myScenario.getTitle().isEmpty()){
       this.myScenario.setTitle(jtextScenarioTitle.getText());
@@ -306,7 +358,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       e.printStackTrace();
     }
     
-    //todo: compute of an id if there is no text set
+    // create the scenario element and add it to the current scenario
     String id;
     if(jtxtElementId.getText().isEmpty()){
       id = this.myScenario.addElement(tmpCore);
@@ -315,18 +367,19 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
     }
     
-    // add the id to the list of element
+    // add the id to the list of element and display it
     if(!elementList.contains(id)){
       elementList.addElement(id);
       jlistElement.setModel(elementList);
     }
     
-    // set the title if it has not been made before
+    // set the title on the interface if it has not been made before
     if(jlblScenarioTitle.getText().equalsIgnoreCase("")){
       jlblScenarioTitle.setText(this.myScenario.getTitle());  
     }
     
     // add the node on the graph visualisation
+    scenarioGraph.addNode(id);
     
     // erase all but the title for the next element to be inputed
     jtxtElementId.setText("");
@@ -345,19 +398,16 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }//GEN-LAST:event_jbtnAddElementActionPerformed
 
   private void jbtnRemoveElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRemoveElementActionPerformed
-    // remove the element from the scenario
-    this.myScenario.removeElement(jtxtElementId.getText());
-    
-    // remove the id from the list
-    elementList.removeElement(jtxtElementId.getText());
-    
-    // remove the node from the graph visualisation
+    this.myScenario.removeElement(jtxtElementId.getText()); // remove the element from the scenario
+    elementList.removeElement(jtxtElementId.getText());     // remove the id from the list
+    scenarioGraph.removeNode(jtxtElementId.getText());      // remove the node from the graph visualisation
   }//GEN-LAST:event_jbtnRemoveElementActionPerformed
 
   private void jlistElementMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jlistElementMouseClicked
     if(evt.getClickCount() == 2){
-      jtxtElementId.setText(this.myScenario.getElement(jlistElement.getSelectedValue()).getElementId());
-      jtxtElementCore.setText(this.myScenario.getElement(jlistElement.getSelectedValue()).getCore().get(0));
+      String selected = jlistElement.getSelectedValue();
+      jtxtElementId.setText(this.myScenario.getElement(selected).getElementId());
+      jtxtElementCore.setText(this.myScenario.getElement(selected).getCore().get(0));
       
       Document doc = jtxtElementCore.getDocument();
       try{
@@ -366,7 +416,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       catch(BadLocationException e){
         e.printStackTrace();
       }
-      for(String s : this.myScenario.getElement(jlistElement.getSelectedValue()).getCore()){
+      for(String s : this.myScenario.getElement(selected).getCore()){
         try{
           doc.insertString(doc.getLength(),s,null);
           doc.insertString(doc.getLength(),"\r\n",null);
@@ -377,30 +427,53 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       }
       
       // color or border of the node and links
+      if(!currentSelectedNode.isEmpty()){
+        scenarioGraph.updateNode(currentSelectedNode,false);
+        //TODO: unselect all its linked edge
+      }
+      currentSelectedNode = this.myScenario.getElement(selected).getElementId();
+      scenarioGraph.updateNode(currentSelectedNode, true);
+      
+      if(this.myScenario.getElement(selected).hasNext()){
+        for(String next : myScenario.getElement(selected).getNextElements()){
+          scenarioGraph.updateLink(selected+next,true);
+        }//for next
+      }//if hasNext
+      
+      if(this.myScenario.getElement(selected).hasPrevious()){
+        for(String previous : myScenario.getElement(selected).getPreviousElements()){
+          scenarioGraph.updateLink(previous+selected,true);
+        }//for previous
+      }//if hasPrevious
+      
+      //scenarioGraph.updateLink(id+next,true);
       
       // fill the left part to allow remove and edition
       
-    }
+    }//if clickCount == 2
   }//GEN-LAST:event_jlistElementMouseClicked
 
   private void jbtnLoadScenarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLoadScenarioActionPerformed
     XmlTool xml = new XmlTool();
-    this.myScenario = xml.loadScenario((String)jcbbScenarioChoice.getSelectedItem());
-    
-    jtxtElementId.setText("");
+    this.myScenario = xml.loadScenario((String)jcbbScenarioChoice.getSelectedItem()); // load the scenario set in the combo box
+    jtxtElementId.setText("");                                                        // no display to do beforehand
     jtxtElementCore.setText("");
     jtextScenarioTitle.setText("");
     elementList.clear();
-    jlblScenarioTitle.setText(this.myScenario.getTitle());  
-    for(String id : this.myScenario.getWholeScenario().keySet()){
-      elementList.addElement(id);
+    jlblScenarioTitle.setText(this.myScenario.getTitle());                            // indicate the scenario name/title
+    for(String id : this.myScenario.getWholeScenario().keySet()){                     // for each element in the scenario
+      elementList.addElement(id);                                                     // add the id to the list
+      scenarioGraph.addNode(id);
+      if(this.myScenario.getElement(id).hasNext()){
+        for(String next : myScenario.getElement(id).getNextElements()){
+          scenarioGraph.addLink(id,next);
+        }// for next
+      }// if hasNext()
     }
     jlistElement.setModel(elementList);
-    
   }//GEN-LAST:event_jbtnLoadScenarioActionPerformed
 
   private void jbtnQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnQuitActionPerformed
-    
     if(this.saveNeeded){
       int dialogButton = JOptionPane.YES_NO_OPTION;
       int dialogResult = JOptionPane.showConfirmDialog (null, "Would you like to save before quit?","Warning",dialogButton);
@@ -416,6 +489,9 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }//GEN-LAST:event_jButton1ActionPerformed
 
   /**
+   * Launching the thread containing the user interface
+   * (auto-generated)
+   * 
    * @param args the command line arguments
    */
   public static void main(String args[]) {
@@ -499,6 +575,15 @@ Document doc = IntelS.getDocument();
 
 
 
+    /*
+    graph.addNode("A" );
+graph.addNode("B" );
+graph.addNode("C" );
+graph.addEdge("AB", "A", "B");
+graph.addEdge("BC", "B", "C");
+graph.addEdge("CA", "C", "A");
 
+//graph.display();
+    
 
 */

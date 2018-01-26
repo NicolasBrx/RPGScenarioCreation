@@ -114,11 +114,19 @@ public class XmlTool {
         String elementId;
         ArrayList<String> coresToAdd = new ArrayList<>();
         elementId = element.getAttributeValue("id");
-        List<Element> cores = element.getChildren();
+        List<Element> cores = element.getChild("cores").getChildren();
         for(Element core : cores){
           coresToAdd.add(core.getText());
         }//for core in cores
         toReturn.addElement(elementId, coresToAdd);
+        List<Element> previouses = element.getChild("previousIds").getChildren();
+        for(Element previous : previouses){
+          toReturn.getElement(elementId).addPreviousElement(previous.getText());
+        }
+        List<Element> nexts = element.getChild("nextIds").getChildren();
+        for(Element next : nexts){
+          toReturn.getElement(elementId).addNextElement(next.getText());
+        }
       }//for element in elements
     }
     catch(JDOMException | IOException e){
@@ -165,6 +173,7 @@ public class XmlTool {
           element.addContent(core);
         }//for core in getCore
         elements.addContent(element);
+        //TODO: save next and before elements if they are ones
       }//for id in wholeScenario
       scenario.addContent(title);
       scenario.addContent(elements);
