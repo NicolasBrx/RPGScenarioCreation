@@ -429,30 +429,25 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
           e.printStackTrace();
         }
       }
-      
-      // color or border of the node and links
-      if(!currentSelectedNode.isEmpty()){
-        scenarioGraph.updateNode(currentSelectedNode,false);
-        //TODO: unselect all its linked edge
-      }
-      currentSelectedNode = this.myScenario.getElement(selected).getElementId();
-      scenarioGraph.updateNode(currentSelectedNode, true);
-      
+  
+      // update graphics
+      ArrayList<String> linkIds = new ArrayList<>();
       if(this.myScenario.getElement(selected).hasNext()){
         for(String next : myScenario.getElement(selected).getNextElements()){
-          scenarioGraph.updateLink(selected+next,true);
+          linkIds.add(selected+next);
         }//for next
       }//if hasNext
       
       if(this.myScenario.getElement(selected).hasPrevious()){
         for(String previous : myScenario.getElement(selected).getPreviousElements()){
-          scenarioGraph.updateLink(previous+selected,true);
+          linkIds.add(previous+selected);
         }//for previous
       }//if hasPrevious
       
-      //scenarioGraph.updateLink(id+next,true);
-      
-      // fill the left part to allow remove and edition
+      scenarioGraph.updateNodesAndLinks(this.myScenario.getElement(selected).getElementId(),
+              linkIds);
+
+      // TODO: fill the left part to allow remove and edition
       
     }//if clickCount == 2
   }//GEN-LAST:event_jlistElementMouseClicked

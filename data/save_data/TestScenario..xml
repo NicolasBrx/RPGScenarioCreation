@@ -2,6 +2,13 @@
 <scenario>
   <title>Test Scenario.</title>
   <elements>
+    <element id="element06">
+      <cores>
+        <core>The sixth element.</core>
+      </cores>
+      <nextIds />
+      <previousIds />
+    </element>
     <element id="element05">
       <cores>
         <core>The fifth element.</core>
