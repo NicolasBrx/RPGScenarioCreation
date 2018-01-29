@@ -168,12 +168,29 @@ public class XmlTool {
       Element elements = new Element("elements");
       for(String id : toSave.getWholeScenario().keySet()){
         Element element = new Element("element").setAttribute("id", id);
+        Element cores = new Element("cores");
         for(String sCore : toSave.getElement(id).getCore()){
           Element core = new Element("core").setText(sCore);
-          element.addContent(core);
+          cores.addContent(core);
         }//for core in getCore
-        elements.addContent(element);
-        //TODO: save next and before elements if they are ones
+        Element nextS = new Element("nextIds");
+        if(toSave.getElement(id).hasNext()){
+          for(String nextId : toSave.getElement(id).getNextElements()){
+            Element next = new Element("nextId").setText(nextId);
+            nextS.addContent(next);
+          }//for next in getNext
+        }//if hasNext
+        Element previousS = new Element("previousIds");
+        if(toSave.getElement(id).hasPrevious()){
+          for(String previousId : toSave.getElement(id).getPreviousElements()){
+            Element previous = new Element("previousId").setText(previousId);
+            previousS.addContent(previous);
+          }//for previous in getPrevious
+        }//if hasPrevious
+        element.addContent(cores);      // adding cores set of the current element
+        element.addContent(nextS);      // adding next ids of the current element
+        element.addContent(previousS);  // adding previous ids of the current element
+        elements.addContent(element);   // adding the current element to the scenario
       }//for id in wholeScenario
       scenario.addContent(title);
       scenario.addContent(elements);

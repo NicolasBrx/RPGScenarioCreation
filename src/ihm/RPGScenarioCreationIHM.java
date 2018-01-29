@@ -8,8 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 import scenario.Scenario;
 import tools.XmlTool;
 
@@ -51,6 +50,8 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
    * For easy code, store the id of the currently selected node if one is.
    */
   private String currentSelectedNode;
+  
+  private Viewer graphView;
     
   
   /****************************************************************************/
@@ -79,6 +80,9 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     // graph viewer initialisation
     scenarioGraph = new MyGraph();
     scenarioGraph.display();
+    // todo: launch some listener of a kinf and thread and stuff... :/
+    
+    
     currentSelectedNode = "";
     
     // because it is not implemented yet.
@@ -470,6 +474,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
         }// for next
       }// if hasNext()
     }
+    scenarioGraph.addPipe();
     jlistElement.setModel(elementList);
   }//GEN-LAST:event_jbtnLoadScenarioActionPerformed
 
