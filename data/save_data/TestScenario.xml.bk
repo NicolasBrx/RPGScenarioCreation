@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scenario>
-  <title>Test Scenario.</title>
+  <title>Test Scenario</title>
   <elements>
+    <element id="element07">
+      <cores>
+        <core>The seventh element</core>
+      </cores>
+      <nextIds>
+        <nextId>element02</nextId>
+      </nextIds>
+      <previousIds />
+    </element>
     <element id="element06">
       <cores>
         <core>The sixth element.</core>
       </cores>
-      <nextIds />
+      <nextIds>
+        <nextId>element01</nextId>
+      </nextIds>
       <previousIds />
     </element>
     <element id="element05">
       <cores>
         <core>The fifth element.</core>
       </cores>
-      <nextIds />
-      <previousIds />
-    </element>
-    <element id="element04">
-      <cores>
-        <core>The fourth element.</core>
-      </cores>
-      <nextIds />
+      <nextIds>
+        <nextId>element01</nextId>
+        <nextId>element02</nextId>
+      </nextIds>
       <previousIds />
     </element>
     <element id="element03">
@@ -41,6 +48,8 @@
       </nextIds>
       <previousIds>
         <previousId>element01</previousId>
+        <previousId>element05</previousId>
+        <previousId>element07</previousId>
       </previousIds>
     </element>
     <element id="element01">
@@ -50,7 +59,10 @@
       <nextIds>
         <nextId>element02</nextId>
       </nextIds>
-      <previousIds />
+      <previousIds>
+        <previousId>element05</previousId>
+        <previousId>element06</previousId>
+      </previousIds>
     </element>
   </elements>
 </scenario>

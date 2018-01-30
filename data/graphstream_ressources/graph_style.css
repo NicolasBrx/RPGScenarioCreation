@@ -1,16 +1,21 @@
 node{
   fill-color: black;
-  text-alignment: at-right;
+  text-alignment: right;
+  text-background-mode: rounded-box;
+  text-background-color: black;
+  text-color: #D7DF01;
   size-mode: dyn-size;
   shape: rounded-box;
 }
 
 node.selected{
-  fill-color: blue;
+  fill-color: #298A08;
+  text-background-color: #298A08;
 }
 
 node.unselected{
-  fill-color: red;
+  fill-color: #013ADF;
+  text-background-color: #013ADF;
 }
 
 edge{
@@ -20,7 +25,7 @@ edge{
 edge.selected{
   size-mode: dyn-size;
   shape: angle;
-  fill-color: blue;
+  fill-color: #298A08;
 }
 
 edge.unselected{

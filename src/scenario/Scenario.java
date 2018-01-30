@@ -94,6 +94,17 @@ public class Scenario {
    * @param elementId 
    */
   public void removeElement(String elementId){
+    // previous and next ?
+    if(this.scenario.get(elementId).hasNext()){
+      for(String next : this.scenario.get(elementId).getNextElements()){
+        this.scenario.get(next).removePrevious(elementId);
+      }
+    }
+    if(this.scenario.get(elementId).hasPrevious()){
+      for(String previous : this.scenario.get(elementId).getPreviousElements()){
+        this.scenario.get(previous).removeNext(elementId);
+      }
+    }
     this.scenario.remove(elementId);
   }
   

@@ -140,6 +140,15 @@ public class ScenarioElement {
   }
   
   /**
+   * Remove an element from the list of previous elements of the current one.
+   * 
+   * @param elementId the element to remove
+   */
+  void removePrevious(String elementId) {
+    this.previousElements.remove(elementId);
+  }
+  
+  /**
    * Return true if the current element have beforehand elements within the
    * current scenario.
    * 
@@ -185,6 +194,15 @@ public class ScenarioElement {
     else{
       // already in
     }
+  }
+  
+  /**
+   * Remove an element from the list of next elements of the current one.
+   * 
+   * @param elementId the element to remove
+   */
+  void removeNext(String elementId) {
+    this.nextElements.remove(elementId);
   }
   
   /**

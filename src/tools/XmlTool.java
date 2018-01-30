@@ -69,12 +69,12 @@ public class XmlTool {
   public ArrayList<String> getAllScenarioTitles(){
     ArrayList<String> toReturn = new ArrayList<>();
     for(File f : new File(scenarioSaves).listFiles()){
-      if(f.isFile()){
-        String s = f.getName().substring(0,f.getName().lastIndexOf('.'));   // remove the file extension
-        String[] parts = s.split("(?=\\p{Upper})");                         // cut the string on upper case
+      if(f.isFile() && !f.getName().contains("bk")){
+        String s = f.getName().substring(0,f.getName().lastIndexOf('.'));       // remove the file extension
+        String[] parts = s.split("(?=\\p{Upper})");                             // cut the string on upper case
         String notRawName = "";                                             
         for(int i = 0; i < parts.length ; ++i){
-          notRawName += parts[i] + (i == (parts.length - 1) ? "" : " ");    // add each part to the string to return
+          notRawName += parts[i] + (i == (parts.length - 1) ? "" : " ");        // add each part to the string to return
         }
         toReturn.add(notRawName);
       }
@@ -94,14 +94,15 @@ public class XmlTool {
    * @return the scenario loaded after the name in parameter.
    */
   public Scenario loadScenario(String notRawFilename){
-    Scenario toReturn = new Scenario();                                             // the element to return
-    String[] part = notRawFilename.split(" ");                                      // remove all white space in the scenario name
+    Scenario toReturn = new Scenario();                                         // the element to return
+    String[] part = notRawFilename.split(" ");                                  // remove all white space in the scenario name
     String rawFilename = "";
-    for(int i = 0 ; i < part.length ; ++i){                                         // for each word in the scenario name
-      rawFilename += (part[i].substring(0,1).toUpperCase() + part[i].substring(1)); // change the first letter to upper case
-                                                                                    // and concatene it
+    for(int i = 0 ; i < part.length ; ++i){                                     // for each word in the scenario name
+      rawFilename += (part[i].substring(0,1).toUpperCase() 
+                  + part[i].substring(1));                                      // change the first letter to upper case
+                                                                                // and concatene it
     }
-    File inputFile = new File(scenarioSaves + rawFilename + ".xml");                // add the file extension
+    File inputFile = new File(scenarioSaves + rawFilename + ".xml");            // add the file extension
     
     /* XML BLOCK */ 
     try{
@@ -144,13 +145,14 @@ public class XmlTool {
    */
   public void saveScenario(Scenario toSave){
     
-    String[] part = toSave.getTitle().split(" ");                                   // remove all white space in the scenario name
+    String[] part = toSave.getTitle().split(" ");                               // remove all white space in the scenario name
     String rawFilename = "";
-    for(int i = 0 ; i < part.length ; ++i){                                         // for each word in the scenario name
-      rawFilename += (part[i].substring(0,1).toUpperCase() + part[i].substring(1)); // change the first letter to upper case
-                                                                                    // and concatene it
+    for(int i = 0 ; i < part.length ; ++i){                                     // for each word in the scenario name
+      rawFilename += (part[i].substring(0,1).toUpperCase() 
+                  + part[i].substring(1));                                      // change the first letter to upper case
+                                                                                // and concatene it
     }
-    File outputFile = new File(scenarioSaves + rawFilename + ".xml");               // add the file extension
+    File outputFile = new File(scenarioSaves + rawFilename + ".xml");           // add the file extension
       
     /* XML BLOCK */
     try{
@@ -161,7 +163,7 @@ public class XmlTool {
       }
       outputFile.createNewFile();
       DataOutputStream stream = new DataOutputStream(new FileOutputStream(outputFile));
-      Element scenario = new Element("scenario");   // root element
+      Element scenario = new Element("scenario");                               // root element
       Document doc = new Document(scenario);
       Element title = new Element("title");
       title.setText(toSave.getTitle());
@@ -187,10 +189,10 @@ public class XmlTool {
             previousS.addContent(previous);
           }//for previous in getPrevious
         }//if hasPrevious
-        element.addContent(cores);      // adding cores set of the current element
-        element.addContent(nextS);      // adding next ids of the current element
-        element.addContent(previousS);  // adding previous ids of the current element
-        elements.addContent(element);   // adding the current element to the scenario
+        element.addContent(cores);                                              // adding cores set of the current element
+        element.addContent(nextS);                                              // adding next ids of the current element
+        element.addContent(previousS);                                          // adding previous ids of the current element
+        elements.addContent(element);                                           // adding the current element to the scenario
       }//for id in wholeScenario
       scenario.addContent(title);
       scenario.addContent(elements);

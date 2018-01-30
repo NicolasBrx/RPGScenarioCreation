@@ -10,8 +10,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.graphstream.ui.view.Viewer;
 import scenario.Scenario;
+import tools.RPGSCException;
 import tools.XmlTool;
 
 /**
@@ -48,13 +48,6 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
    */
   private MyGraph scenarioGraph;
   
-  /**
-   * For easy code, store the id of the currently selected node if one is.
-   */
-  private String currentSelectedNode;
-  
-  private Viewer graphView;
-    
   
   /****************************************************************************/
   /** Private Attributes                                                     **/
@@ -65,41 +58,36 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
    * Creates new form RPGScenarioCreationIHM
    */
   public RPGScenarioCreationIHM() {
-    initComponents();                                     // auto-generated
+    initComponents();                                                           // auto-generated
     
-    this.setTitle("RPGScenario Management v.0.1.0");      // title of the frame and software
-    URL iconURL = getClass().getResource("favicon.png");  // icon for the frame
+    this.setTitle("RPGScenario Management v.0.9.0");                            // title of the frame and software
+    URL iconURL = getClass().getResource("favicon.png");                        // icon for the frame
     ImageIcon icon = new ImageIcon(iconURL);
     this.setIconImage(icon.getImage());
     
-    XmlTool xml = new XmlTool();                          // retrieving all the available scenarii
+    XmlTool xml = new XmlTool();                                                // retrieving all the available scenarii
     for(String s : xml.getAllScenarioTitles()){
-      jcbbScenarioChoice.addItem(s);                      // to be put into a combo box
+      jcbbScenarioChoice.addItem(s);                                            // to be put into a combo box
     }
     
-    jlblScenarioTitle.setText("");
+    jlblScenarioTitle.setText("");                                              // no scenario is loaded yet
+    jlblLinkCreation.setVisible(false);                                         // this label is just a visual support
+                                                                                // while creating links between nodes
     
-    // graph viewer initialisation
-    scenarioGraph = new MyGraph();
-    //scenarioGraph.display();
+    scenarioGraph = new MyGraph(this);                                          // graph viewer initialisation
     jpanelGraphView.setLayout(new GridLayout());
-    jpanelGraphView.setMaximumSize(new Dimension(495,633));
-    jpanelGraphView.setMinimumSize(new Dimension(495,633));
-    jpanelGraphView.setPreferredSize(new Dimension(495,633));
-    jpanelGraphView.add(scenarioGraph.getView(495,633));
+    jpanelGraphView.setMaximumSize(new Dimension(495,600));
+    jpanelGraphView.setMinimumSize(new Dimension(495,600));
+    jpanelGraphView.setPreferredSize(new Dimension(495,600));
+    jpanelGraphView.add(scenarioGraph.getView(495,600));
     pack();
     repaint();
-    // todo: launch some listener of a kinf and thread and stuff... :/
     
+    jcbbDifficulty.setEnabled(false);                                           // because it is not implemented yet.
+    jtextNbElement.setEnabled(false);                                           // because it is not implemented yet.
+    jbtnRandomGeneration.setEnabled(false);                                     // because it is not implemented yet.
     
-    currentSelectedNode = "";
-    
-    // because it is not implemented yet.
-    jcbbDifficulty.setEnabled(false);
-    jtextNbElement.setEnabled(false);
-    jbtnRandomGeneration.setEnabled(false);
-    
-    this.saveNeeded = false;                              // initial state, no save is needed obviously
+    this.saveNeeded = false;                                                    // initial state, no save is needed obviously
   }
   
   /**
@@ -113,13 +101,100 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   
   /**
    * Save the current scenario into an xml file named after the title of the
-   * scenario. 
+   * scenario. Pretty straightforward.
    */
   public void saveScenario(){
     XmlTool xml = new XmlTool();
     xml.saveScenario(this.myScenario);
-    this.setTitle(this.getTitle().substring(1));
-    this.saveNeeded = false;
+    save(false);                                                                // scenario is saved
+  }
+  
+  /**
+   * Load data of the element with the given id into the left side of the UI.
+   * 
+   * @param id the id of the element to display.
+   */
+  public void selectElement(String id){
+    jtxtElementId.setText(this.myScenario.getElement(id).getElementId());
+    jtxtElementCore.setText(this.myScenario.getElement(id).getCore().get(0));
+    Document doc = jtxtElementCore.getDocument();
+    try{
+      doc.remove(0, doc.getLength());
+    }catch(BadLocationException e){e.printStackTrace();}
+    for(String s : this.myScenario.getElement(id).getCore()){
+      try{
+        doc.insertString(doc.getLength(),s,null);
+        doc.insertString(doc.getLength(),"\r\n",null);
+      }catch(BadLocationException e){e.printStackTrace();}
+    }//for s in getCore
+  }
+  
+  /**
+   * Add a previous or a next element tothe element with the elementId id. This
+   * method uses a string parameter to indicate if the element to add is previous
+   * or next to the current one.
+   * This method is called from the MyGraph class that handles graph visualisation
+   * and link addition using the user interface.
+   * 
+   * @param elementId the id of the element to update
+   * @param PNId      the id to add as a previous or a next element
+   * @param mode      "next" or "previous" according to what is added
+   */
+  public void addPreviousOrNext(String elementId, String PNId, String mode){
+    if(mode.equalsIgnoreCase("previous")){
+      this.myScenario.getElement(elementId).addPreviousElement(PNId);
+    }
+    else if(mode.equalsIgnoreCase("next")){
+      this.myScenario.getElement(elementId).addNextElement(PNId);
+    }
+    else{
+      // TODO: error or warning
+    }
+    save(true);                                                                 // the scenario as been modified
+  }
+  
+  /**
+   * This method allows the MyGraph class to inform the user that one node
+   * has been selected and is registered as the first node in the upcoming
+   * edge creation.
+   * This method is just and only a support for visual aid and error.
+   * 
+   * @param nodeId the id of the node, aka the element, that is considered 
+   *                as the first element
+   * @param error  if an error is thrown, it is displayed here.
+   */
+  public void setFirstForLinkCreation(String nodeId, boolean error){
+    if(error){
+      jlblLinkCreation.setVisible(true);
+      jlblLinkCreation.setText(nodeId);
+    }
+    else{
+      if(nodeId.equals("")){
+        jlblLinkCreation.setVisible(false);
+      }
+      else{
+        jlblLinkCreation.setVisible(true);
+        jlblLinkCreation.setText("First element selected for link creation: " + nodeId);
+      }
+    }
+  }
+  
+  /**
+   * Tool method to handle save indication of the scenario. This just set a boolean
+   * attribute of the class as well as the frame title for visual indication
+   * 
+   * @param save indicate if the scenario needs to be saved (true) or no (false)
+   */
+  public void save(boolean save){
+    this.saveNeeded = save;
+    if(save){
+      if(!this.getTitle().contains("*")){
+        this.setTitle("*" + this.getTitle());
+      }  
+    }
+    else{
+      this.setTitle(this.getTitle().substring(1));
+    }
   }
 
   /****************************************************************************/
@@ -159,6 +234,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     jbtnQuit = new javax.swing.JButton();
     jlblScenarioTitle = new javax.swing.JLabel();
     jButton3 = new javax.swing.JButton();
+    jlblLinkCreation = new javax.swing.JLabel();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setMinimumSize(new java.awt.Dimension(1024, 677));
@@ -174,7 +250,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     );
     jpanelGraphViewLayout.setVerticalGroup(
       jpanelGraphViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 0, Short.MAX_VALUE)
+      .addGap(0, 596, Short.MAX_VALUE)
     );
 
     jLabel1.setText("Element Id: ");
@@ -240,67 +316,86 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     });
 
     jlblScenarioTitle.setText("jLabel7");
+    jlblScenarioTitle.setMaximumSize(new java.awt.Dimension(495, 16));
+    jlblScenarioTitle.setMinimumSize(new java.awt.Dimension(495, 16));
+    jlblScenarioTitle.setPreferredSize(new java.awt.Dimension(495, 16));
 
     jButton3.setText("Clean Fields");
+    jButton3.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButton3ActionPerformed(evt);
+      }
+    });
+
+    jlblLinkCreation.setText("First element for link creation: ");
+    jlblLinkCreation.setMaximumSize(new java.awt.Dimension(330, 16));
+    jlblLinkCreation.setMinimumSize(new java.awt.Dimension(330, 16));
+    jlblLinkCreation.setPreferredSize(new java.awt.Dimension(330, 16));
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
+        .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(layout.createSequentialGroup()
-            .addContainerGap()
+          .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+            .addGroup(layout.createSequentialGroup()
+              .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jLabel1)
+                .addComponent(jLabel6))
+              .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+              .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jtxtElementId, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jtextScenarioTitle)))
+            .addComponent(jLabel2)
+            .addComponent(jLabel5)
+            .addComponent(jcbbScenarioChoice, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jbtnLoadScenario, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+              .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jbtnAddElement, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
+              .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+              .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jbtnRemoveElement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+          .addComponent(jbtnRandomGeneration, javax.swing.GroupLayout.Alignment.TRAILING)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+              .addComponent(jLabel3)
+              .addComponent(jLabel4))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-              .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addComponent(jLabel1)
-                  .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addComponent(jtxtElementId, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addComponent(jtextScenarioTitle)))
-              .addComponent(jLabel2)
-              .addComponent(jLabel5)
-              .addComponent(jcbbScenarioChoice, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
-              .addComponent(jbtnLoadScenario, javax.swing.GroupLayout.Alignment.TRAILING)
-              .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
-              .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                  .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                  .addComponent(jbtnAddElement, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                  .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                  .addComponent(jbtnRemoveElement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-              .addComponent(jbtnRandomGeneration, javax.swing.GroupLayout.Alignment.TRAILING)
-              .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                  .addComponent(jLabel3)
-                  .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                  .addComponent(jcbbDifficulty, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                  .addComponent(jtextNbElement)))))
-          .addGroup(layout.createSequentialGroup()
-            .addGap(24, 24, 24)
-            .addComponent(jbtnQuit)))
+              .addComponent(jcbbDifficulty, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jtextNbElement, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(layout.createSequentialGroup()
-            .addGap(21, 21, 21)
-            .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
-          .addGroup(layout.createSequentialGroup()
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-            .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-        .addGap(18, 18, 18))
+            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(jlblLinkCreation, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(jbtnQuit)))
+        .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(199, 199, 199)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(jbtnQuit)
+              .addComponent(jlblLinkCreation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
           .addGroup(layout.createSequentialGroup()
             .addGap(17, 17, 17)
             .addComponent(jLabel5)
@@ -328,7 +423,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jButton1)
               .addComponent(jButton3))
-            .addGap(63, 63, 63)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
               .addComponent(jLabel3)
               .addComponent(jtextNbElement, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -338,30 +433,24 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
               .addComponent(jcbbDifficulty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
             .addComponent(jbtnRandomGeneration)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
-            .addComponent(jbtnQuit)
-            .addGap(8, 8, 8))
+            .addGap(19, 19, 19))
           .addGroup(layout.createSequentialGroup()
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(jlblScenarioTitle)
+            .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        .addContainerGap())
+            .addComponent(jpanelGraphView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(34, 34, 34)))
+        .addGap(8, 14, Short.MAX_VALUE))
     );
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
   private void jbtnAddElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddElementActionPerformed
-    // set the title if it has not be done yet
-    if(this.myScenario.getTitle().isEmpty()){
+    if(this.myScenario.getTitle().isEmpty()){                                   // if the scenario has no title stored
       this.myScenario.setTitle(jtextScenarioTitle.getText());
     }
-    
-    // add the several components of the element
-    ArrayList<String> tmpCore = new ArrayList<>();
+
+    ArrayList<String> tmpCore = new ArrayList<>();                              // retrieve the core components of an element
     Document doc = jtxtElementCore.getDocument();
     try{
       String tmp = doc.getText(0,doc.getLength());
@@ -369,125 +458,98 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       for(int i = 0 ; i < parts.length ; ++i){
         tmpCore.add(parts[i]);
       }
-    }
-    catch(BadLocationException e){
-      e.printStackTrace();
-    }
+    }catch(BadLocationException e){e.printStackTrace();}// TODO: better error
     
-    // create the scenario element and add it to the current scenario
-    String id;
-    if(jtxtElementId.getText().isEmpty()){
-      id = this.myScenario.addElement(tmpCore);
+    String id;                                                                  // temporary String for id use
+    if(jtxtElementId.getText().isEmpty()){                                      // if the id is not set
+      id = this.myScenario.addElement(tmpCore);                                 // one will be auto generated
     }
     else{
       id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
     }
     
-    // add the id to the list of element and display it
-    if(!elementList.contains(id)){
-      elementList.addElement(id);
-      jlistElement.setModel(elementList);
+    if(!elementList.contains(id)){                                              // if the id is not already in the list
+      elementList.addElement(id);                                               // add it
+      jlistElement.setModel(elementList);                                       // and update the view
     }
     
-    // set the title on the interface if it has not been made before
-    if(jlblScenarioTitle.getText().equalsIgnoreCase("")){
-      jlblScenarioTitle.setText(this.myScenario.getTitle());  
+    if(jlblScenarioTitle.getText().equalsIgnoreCase("")){                       // set the title of the scenario if it
+      jlblScenarioTitle.setText(this.myScenario.getTitle());                    // has not been made before
     }
     
-    // add the node on the graph visualisation
-    scenarioGraph.addNode(id);
+    scenarioGraph.addNode(id);                                                  // add the element as a new node in the graph 
+                                                                                // representing the scenario
     
-    // erase all but the title for the next element to be inputed
-    jtxtElementId.setText("");
+    jtxtElementId.setText("");                                                  // erase all the field for further inputs
     try{
       doc.remove(0, doc.getLength());
-    }
-    catch(BadLocationException e){
-      e.printStackTrace();
-    }
+    }catch(BadLocationException e){e.printStackTrace();}
     
-    // indicate that a scenario save is needed
-    this.saveNeeded = true;
-    if(!this.getTitle().contains("*")){
-      this.setTitle("*" + this.getTitle());
-    }
+    save(true);                                                                 // the scenario has been modified
   }//GEN-LAST:event_jbtnAddElementActionPerformed
 
   private void jbtnRemoveElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRemoveElementActionPerformed
-    this.myScenario.removeElement(jtxtElementId.getText()); // remove the element from the scenario
-    elementList.removeElement(jtxtElementId.getText());     // remove the id from the list
-    scenarioGraph.removeNode(jtxtElementId.getText());      // remove the node from the graph visualisation
+    this.myScenario.removeElement(jtxtElementId.getText());                     // remove the element from the scenario
+    elementList.removeElement(jtxtElementId.getText());                         // remove the id from the list
+    scenarioGraph.removeNode(jtxtElementId.getText());                          // remove the node from the graph visualisation
+    // indicate that a scenario save is needed
+    save(true);                                                                 // the scenario has been modified
   }//GEN-LAST:event_jbtnRemoveElementActionPerformed
 
   private void jlistElementMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jlistElementMouseClicked
-    if(evt.getClickCount() == 2){
-      String selected = jlistElement.getSelectedValue();
-      jtxtElementId.setText(this.myScenario.getElement(selected).getElementId());
-      jtxtElementCore.setText(this.myScenario.getElement(selected).getCore().get(0));
-      
-      Document doc = jtxtElementCore.getDocument();
-      try{
-        doc.remove(0, doc.getLength());
-      }
-      catch(BadLocationException e){
-        e.printStackTrace();
-      }
-      for(String s : this.myScenario.getElement(selected).getCore()){
-        try{
-          doc.insertString(doc.getLength(),s,null);
-          doc.insertString(doc.getLength(),"\r\n",null);
-        }
-        catch(BadLocationException e){
-          e.printStackTrace();
-        }
-      }
+    if(evt.getClickCount() == 2){                                               // only if double click on the element
+      String selected = jlistElement.getSelectedValue();                        // temporary attribute for easy handle
+      selectElement(selected);                                                  // fill the left part of the user interface
   
-      // update graphics
-      ArrayList<String> linkIds = new ArrayList<>();
-      if(this.myScenario.getElement(selected).hasNext()){
+      ArrayList<String> linkIds = new ArrayList<>();                            // update the graphic part via the class MyGraph
+      if(this.myScenario.getElement(selected).hasNext()){                       // if the element has next elements
         for(String next : myScenario.getElement(selected).getNextElements()){
-          linkIds.add(selected+next);
+          linkIds.add(selected+next);                                           // the outcoming links to update
         }//for next
       }//if hasNext
-      
-      if(this.myScenario.getElement(selected).hasPrevious()){
+       if(this.myScenario.getElement(selected).hasPrevious()){                  // if the element has previous elements
         for(String previous : myScenario.getElement(selected).getPreviousElements()){
-          linkIds.add(previous+selected);
+          linkIds.add(previous+selected);                                       // the incoming links to update
         }//for previous
       }//if hasPrevious
-      
-      scenarioGraph.updateNodesAndLinks(this.myScenario.getElement(selected).getElementId(),
-              linkIds);
-
-      // TODO: fill the left part to allow remove and edition
-      
+      scenarioGraph.updateNodesAndLinks(                                        
+              this.myScenario.getElement(selected).getElementId(),linkIds);     // update the view of the node and attached links
     }//if clickCount == 2
   }//GEN-LAST:event_jlistElementMouseClicked
 
   private void jbtnLoadScenarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLoadScenarioActionPerformed
     XmlTool xml = new XmlTool();
     this.myScenario = xml.loadScenario((String)jcbbScenarioChoice.getSelectedItem()); // load the scenario set in the combo box
-    jtxtElementId.setText("");                                                        // no display to do beforehand
+    jtxtElementId.setText("");                                                  // no display to do beforehand
     jtxtElementCore.setText("");
     jtextScenarioTitle.setText("");
     elementList.clear();
-    jlblScenarioTitle.setText(this.myScenario.getTitle());                            // indicate the scenario name/title
-    for(String id : this.myScenario.getWholeScenario().keySet()){                     // for each element in the scenario
-      elementList.addElement(id);                                                     // add the id to the list
-      scenarioGraph.addNode(id);
-      if(this.myScenario.getElement(id).hasNext()){
-        for(String next : myScenario.getElement(id).getNextElements()){
-          scenarioGraph.addLink(id,next);
+    jlblScenarioTitle.setText(this.myScenario.getTitle());                      // indicate the scenario name/title
+    for(String id : this.myScenario.getWholeScenario().keySet()){               // for each element in the scenario
+      elementList.addElement(id);                                               // add the id to the list
+      scenarioGraph.addNode(id);                                                // add the related node in the graph
+    }//for id -> add node
+    for(String id : this.myScenario.getWholeScenario().keySet()){               // for each element in the scenario
+      if(this.myScenario.getElement(id).hasNext()){                             // if the node has next elements
+        for(String next : myScenario.getElement(id).getNextElements()){         // for each next elements of the node
+          try{
+            scenarioGraph.addLink(id,next);                                     // add a link between the two nodes
+          }catch(RPGSCException e){
+            System.err.println("The link between " + id + " and " + next + " is already"
+                    + " created. This is not possible while loading an existing"
+                    + "scenario. Program will now quit.");
+            System.exit(9);
+          }
         }// for next
       }// if hasNext()
-    }
-    scenarioGraph.addPipe();
-    jlistElement.setModel(elementList);
+    }//for id -> addLink
+    scenarioGraph.addPipe();                                                    // add the listeners on the graph visualisation
+    jlistElement.setModel(elementList);                                         // update the list view of the elements of the scenario
   }//GEN-LAST:event_jbtnLoadScenarioActionPerformed
 
   private void jbtnQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnQuitActionPerformed
-    if(this.saveNeeded){
-      int dialogButton = JOptionPane.YES_NO_OPTION;
+    if(this.saveNeeded){                                                        // if a save is needed while closing
+      int dialogButton = JOptionPane.YES_NO_OPTION;                             // proposes to do so
       int dialogResult = JOptionPane.showConfirmDialog (null, "Would you like to save before quit?","Warning",dialogButton);
       if(dialogResult == JOptionPane.YES_OPTION){
         saveScenario();
@@ -497,8 +559,19 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }//GEN-LAST:event_jbtnQuitActionPerformed
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    saveScenario();
+    saveScenario();                                                             // save the scenario, nothing more
   }//GEN-LAST:event_jButton1ActionPerformed
+
+  private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    Document doc = jtxtElementCore.getDocument();                               // erase all the data in the several fields used to input an element
+    jtxtElementId.setText("");
+    try{
+      doc.remove(0, doc.getLength());
+    }
+    catch(BadLocationException e){
+      e.printStackTrace();
+    }
+  }//GEN-LAST:event_jButton3ActionPerformed
 
   /**
    * Launching the thread containing the user interface
@@ -556,6 +629,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   private javax.swing.JButton jbtnRemoveElement;
   private javax.swing.JComboBox<String> jcbbDifficulty;
   private javax.swing.JComboBox<String> jcbbScenarioChoice;
+  private javax.swing.JLabel jlblLinkCreation;
   private javax.swing.JLabel jlblScenarioTitle;
   private javax.swing.JList<String> jlistElement;
   private javax.swing.JPanel jpanelGraphView;
@@ -565,37 +639,3 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   private javax.swing.JTextField jtxtElementId;
   // End of variables declaration//GEN-END:variables
 }
-
-
-/*
-
-Document doc = IntelS.getDocument();
-      try{
-        doc.remove(0, doc.getLength());
-      }
-      catch(BadLocationException e){
-        e.printStackTrace();
-      }
-      for(String s : supervisors.get(selectedItem).getNotes()){
-        try{
-          doc.insertString(doc.getLength(),s,null);
-          doc.insertString(doc.getLength(),"\r\n",null);
-        }
-        catch(BadLocationException e){
-          e.printStackTrace();
-        }
-
-
-
-    /*
-    graph.addNode("A" );
-graph.addNode("B" );
-graph.addNode("C" );
-graph.addEdge("AB", "A", "B");
-graph.addEdge("BC", "B", "C");
-graph.addEdge("CA", "C", "A");
-
-//graph.display();
-    
-
-*/

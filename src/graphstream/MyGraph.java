@@ -1,5 +1,6 @@
 package graphstream;
 
+import ihm.RPGScenarioCreationIHM;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
+import tools.RPGSCException;
 
 /**
  * Handle the graph on graphstream format as well as mouselistener on it (select node,
@@ -31,14 +33,19 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   private ViewerPipe fromViewer;
   private ArrayList<String> nodeIds;
   private ArrayList<String> linkIds;
+  private RPGScenarioCreationIHM ihm;
+  private String firstSelectedForLinkCreation = "";
   
-  public MyGraph(){
+  public MyGraph(RPGScenarioCreationIHM ihm){
     System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
     this.graph = new SingleGraph("Scenario visualisation.");
     this.graph.addAttribute("ui.stylesheet", "url('file:" + System.getProperty("user.dir") 
             + "/data/graphstream_ressources/graph_style.css'" + ")");
+    this.graph.addAttribute("ui.quality");
+    this.graph.addAttribute("ui.antialias");
     this.nodeIds = new ArrayList<>();
     this.linkIds = new ArrayList<>();
+    this.ihm = ihm;
   }
   
   public void addNode(String nodeId){
@@ -56,6 +63,15 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
   
   public void removeNode(String nodeId){
+    ArrayList<String> linksToRemove = new ArrayList<>();
+    for(Edge edge : graph.getNode(nodeId).getEdgeSet()){
+      linksToRemove.add(edge.getId());
+    }
+    for(String s : linksToRemove){
+      linkIds.remove(s);
+      graph.removeEdge(s);
+    }
+    nodeIds.remove(nodeId);
     graph.removeNode(nodeId);
   }
   
@@ -77,13 +93,16 @@ public class MyGraph implements ViewerListener, MouseInputListener{
     this.view.addMouseListener(this);
   }
   
-  public void addLink(String fromId,String toId){
-    // TODO: check here if the edge already exists
-    Edge e = graph.addEdge(fromId+toId,fromId,toId,true);
-    linkIds.add(fromId+toId);
-    e.addAttribute("ui.size",LINK_SIZE);
-    e.addAttribute("ui.label","toto");
-    e.setAttribute("selected?",false);
+  public void addLink(String fromId,String toId) throws RPGSCException{
+    if(!linkIds.contains(fromId+toId)){
+      Edge e = graph.addEdge(fromId+toId,fromId,toId,true);
+      linkIds.add(fromId+toId);
+      e.addAttribute("ui.size",LINK_SIZE);
+      e.setAttribute("selected?",false);
+    }
+    else{
+      throw new RPGSCException("The node is already existing.");
+    }
   }
   
   public void updateLink(String linkId, boolean selected){
@@ -117,53 +136,62 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   
   @Override
   public void mouseClicked(MouseEvent e){
-    if(e.getButton() == MouseEvent.BUTTON1){
-      for(String id : this.nodeIds){
-        Object[] xy = graph.getNode(id).getArray("xyz");
+    
+    String nodeId = "";
+    for(String id : this.nodeIds){
+       Object[] xy = graph.getNode(id).getArray("xyz");
        double x = this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).x;
        double y = this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).y;
        if((x - NODE_SIZE/2 < e.getPoint().x && e.getPoint().x < x + NODE_SIZE/2)
        && (y - NODE_SIZE/2 < e.getPoint().y && e.getPoint().y < y + NODE_SIZE/2)
        ){
-         System.out.println("The node " + id + " is under the cursor.");
-         ArrayList<String> nodeLinks = new ArrayList<>();
-         for(Edge edge : graph.getNode(id).getEdgeSet()){
-           nodeLinks.add(edge.getId());
-         }
-         updateNodesAndLinks(id,nodeLinks);
-       }
-     }//for id
-    }// if BUTTON1
-    else{
-      if(e.getButton() == MouseEvent.BUTTON2){
-       // contextual menu on the selected node... 
+         nodeId = id;
+       }//if
+    }//for
+    if(!"".equals(nodeId)){
+      if(e.getButton() == MouseEvent.BUTTON1){
+        if(e.getClickCount() == 2){
+        ArrayList<String> nodeLinks = new ArrayList<>();
+        for(Edge edge : graph.getNode(nodeId).getEdgeSet()){
+          nodeLinks.add(edge.getId());
+        }
+        updateNodesAndLinks(nodeId,nodeLinks);
+        this.ihm.selectElement(nodeId);
+        }
+        else if(e.getClickCount() == 1){
+        }
+      }// if BUTTON1
+      if(e.getButton() == MouseEvent.BUTTON3){
+        boolean error = false;
+        if("".equals(firstSelectedForLinkCreation)){
+          firstSelectedForLinkCreation = nodeId; 
+        }
+        else{
+          try{
+            addLink(firstSelectedForLinkCreation,nodeId);
+            this.ihm.addPreviousOrNext(firstSelectedForLinkCreation, nodeId, "next");
+            this.ihm.addPreviousOrNext(nodeId, firstSelectedForLinkCreation, "previous");
+            firstSelectedForLinkCreation = "";
+          }
+          catch(RPGSCException ex){
+            firstSelectedForLinkCreation = "";
+            error = true;
+          }
+        } 
+        this.ihm.setFirstForLinkCreation(error ? "This link is already existing..." : firstSelectedForLinkCreation,error);
       }
-    }
+    }//if nodeId != ""
   }
   
-  
+  // unused methods... for now...
   @Override
   public void buttonPushed(String id) {
-    /*
-    Object[] xy = graph.getNode(id).getArray("xyz");
-    System.out.println(xy[0] + ";" + xy[1]);
-    System.out.println("mousePushed: "
-            + this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).x
-            + ";"
-            + this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).y
-    );
-    ArrayList<String> nodeLinks = new ArrayList<>();
-    for(Edge e : graph.getNode(id).getEdgeSet()){
-      nodeLinks.add(e.getId());
-    }
-    updateNodesAndLinks(id,nodeLinks);
-    //TODO: selection onto the main IHM
-*/
+    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void buttonReleased(String id) {
-    //
+    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
   
   @Override
@@ -174,8 +202,6 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   public void mousePressed(MouseEvent e) {
     //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
-
-  
 
   @Override
   public void mouseEntered(MouseEvent e) {
