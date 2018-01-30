@@ -1,6 +1,8 @@
 package ihm;
 
 import graphstream.MyGraph;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
@@ -79,7 +81,14 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     
     // graph viewer initialisation
     scenarioGraph = new MyGraph();
-    scenarioGraph.display();
+    //scenarioGraph.display();
+    jpanelGraphView.setLayout(new GridLayout());
+    jpanelGraphView.setMaximumSize(new Dimension(495,633));
+    jpanelGraphView.setMinimumSize(new Dimension(495,633));
+    jpanelGraphView.setPreferredSize(new Dimension(495,633));
+    jpanelGraphView.add(scenarioGraph.getView(495,633));
+    pack();
+    repaint();
     // todo: launch some listener of a kinf and thread and stuff... :/
     
     
@@ -161,7 +170,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     jpanelGraphView.setLayout(jpanelGraphViewLayout);
     jpanelGraphViewLayout.setHorizontalGroup(
       jpanelGraphViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 482, Short.MAX_VALUE)
+      .addGap(0, 0, Short.MAX_VALUE)
     );
     jpanelGraphViewLayout.setVerticalGroup(
       jpanelGraphViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,10 +285,13 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
           .addGroup(layout.createSequentialGroup()
             .addGap(24, 24, 24)
             .addComponent(jbtnQuit)))
-        .addGap(21, 21, 21)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addGroup(layout.createSequentialGroup()
+            .addGap(21, 21, 21)
+            .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+          .addGroup(layout.createSequentialGroup()
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
         .addGap(18, 18, 18))
@@ -289,9 +301,6 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(layout.createSequentialGroup()
             .addGap(17, 17, 17)
             .addComponent(jLabel5)
@@ -333,8 +342,11 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addComponent(jbtnQuit)
             .addGap(8, 8, 8))
           .addGroup(layout.createSequentialGroup()
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(layout.createSequentialGroup()
             .addComponent(jlblScenarioTitle)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         .addContainerGap())
     );
