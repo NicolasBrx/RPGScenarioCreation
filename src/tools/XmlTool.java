@@ -79,7 +79,6 @@ public class XmlTool {
         toReturn.add(notRawName);
       }
     }
-    
     return toReturn;
   }
   
@@ -129,12 +128,10 @@ public class XmlTool {
           toReturn.getElement(elementId).addNextElement(next.getText());
         }
       }//for element in elements
-    }
-    catch(JDOMException | IOException e){
+    }catch(JDOMException | IOException e){
       //e.printStackTrace();
     }//catch
     /* END of XML BLOCK */
-    
     return toReturn;
   }
   
@@ -200,8 +197,7 @@ public class XmlTool {
       xmlOut.setFormat(Format.getPrettyFormat());
       xmlOut.output(doc, stream);
       stream.close();
-    }// try
-    catch (IOException ioe) {
+    }catch (IOException ioe){
       System.err.println("ECHEC!");
     }
     /* END of XML BLOCK */

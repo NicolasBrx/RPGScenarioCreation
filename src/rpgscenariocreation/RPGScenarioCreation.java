@@ -17,7 +17,7 @@ public class RPGScenarioCreation {
     RPGScenarioCreationIHM ihm = new RPGScenarioCreationIHM();
     ihm.setVisible(true);
 
-    /*
+    /* THOUGHTS FOR RANDOM GENERATION
       Un scenario c'est :
       > 1. Un protagoniste principal.
         1.1. Etat Civil (sexe, race, age, taille, ...).

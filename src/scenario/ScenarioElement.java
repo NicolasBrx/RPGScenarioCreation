@@ -135,7 +135,7 @@ public class ScenarioElement {
       this.previousElements.add(toAdd);
     }
     else{
-      // already in
+      // TODO: error or warning
     }
   }
   
@@ -192,7 +192,7 @@ public class ScenarioElement {
       this.nextElements.add(toAdd);
     }
     else{
-      // already in
+      // TODO: error or warning
     }
   }
   

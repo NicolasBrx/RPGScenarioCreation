@@ -50,7 +50,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   
   
   /****************************************************************************/
-  /** Private Attributes                                                     **/
+  /** Constructor Methods                                                    **/
   /****************************************************************************/
   
   /**
