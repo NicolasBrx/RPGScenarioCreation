@@ -92,6 +92,12 @@ public class MyGraph implements ViewerListener, MouseInputListener{
    */
   private String firstSelectedForLinkCreation = "";
   
+  /**
+   * This boolean allows to monitor the graph view event catching by denying it
+   * if no graph have been linked to the view yet.
+   */
+  private boolean graphBuilt =false ; 
+  
   
   /****************************************************************************/
   /** Constructor Methods                                                    **/
@@ -121,17 +127,25 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   /****************************************************************************/
   
   /**
-   * Add a new node with the given identification to the graph.
+   * Add a new node with the given identification to the graph. If the node 
+   * already exists, it will remove it and replace it by the new one.
+   * Verification have to be made in the main IHM and in the scenario representation
+   * as MyGraph is just a visualization, nothing more.
    * 
    * @param nodeId The id of the node to add.
    */
   public void addNode(String nodeId){
+    if(nodeIds != null && nodeIds.contains(nodeId)){
+      removeNode(nodeId);
+    }
     Node n = graph.addNode(nodeId);
     nodeIds.add(nodeId);
     n.addAttribute("ui.label",nodeId);
     n.addAttribute("ui.size",NODE_SIZE);
     n.addAttribute("ui.class","unselected");
-    n.setAttribute("selected?",false);
+    if(!graphBuilt){
+      graphBuilt = true;
+    }
   }
   
   /**
@@ -141,7 +155,12 @@ public class MyGraph implements ViewerListener, MouseInputListener{
    * @param selected The value of the selection.
    */
   public void updateNode(String nodeId, boolean selected){
-    graph.getNode(nodeId).setAttribute("selected?",selected);
+    if(selected){
+      graph.getNode(nodeId).setAttribute("selected?");
+    }
+    else{
+      graph.getNode(nodeId).removeAttribute("selected?");
+    }
     graph.getNode(nodeId).setAttribute("ui.class", (selected ? "selected" : "unselected"));
   }
   
@@ -191,10 +210,14 @@ public class MyGraph implements ViewerListener, MouseInputListener{
       Edge e = graph.addEdge(fromId+toId,fromId,toId,true);
       linkIds.add(fromId+toId);
       e.addAttribute("ui.size",LINK_SIZE);
-      e.setAttribute("selected?",false);
+      if((graph.getNode(fromId).hasAttribute("selected?")) 
+      || (graph.getNode(toId).hasAttribute("selected?"))){
+        e.setAttribute("selected?");
+      }
+      e.setAttribute("ui.class",(e.hasAttribute("selected?")?"selected":"unselected"));
     }
     else{
-      throw new RPGSCException("The node is already existing.");
+      throw new RPGSCException("The edge is already existing.");
     }
   }
   
@@ -205,7 +228,12 @@ public class MyGraph implements ViewerListener, MouseInputListener{
    * @param selected The value of the selection.
    */
   public void updateLink(String linkId, boolean selected){
-    graph.getEdge(linkId).setAttribute("selected?",selected);
+    if(selected){
+      graph.getEdge(linkId).setAttribute("selected?");
+    }
+    else{
+      graph.getEdge(linkId).removeAttribute("selected?");
+    }
     graph.getEdge(linkId).setAttribute("ui.class", (selected ? "selected" : "unselected"));
   }
   
@@ -249,24 +277,28 @@ public class MyGraph implements ViewerListener, MouseInputListener{
    * Graphstream Libreary.
    */
   public void addPipe(){
-    this.fromViewer = this.viewer.newViewerPipe();
-    fromViewer.addViewerListener(this);
-    fromViewer.addSink(graph);
+    if(this.fromViewer == null){
+      this.fromViewer = this.viewer.newViewerPipe();
+      fromViewer.addViewerListener(this);
+      fromViewer.addSink(graph);
+    }
   }
   
   /**
    * Update a node and several edges identified by their ids. See also
    * {@link #updateNode(String, boolean)} and {@link #updateNode(String, boolean)}.
+   * This function set the select attribute of the node and the edges given in
+   * parameters to true and to false for all the other nodes and edges.
    * 
    * @param nodeId The id of the node to update.
    * @param linkIds The ids of the edges to update.
    */
   public void updateNodesAndLinks(String nodeId, ArrayList<String>linkIds){
-    for(String s : this.nodeIds){
-      updateNode(s,s.equalsIgnoreCase(nodeId));
+    for(String s : this.nodeIds){                                               // process all the nodes
+      updateNode(s,s.equalsIgnoreCase(nodeId));                                 // select the one in parameter and unselect the others
     }
-    for(String s : this.linkIds){
-      updateLink(s,linkIds.contains(s));
+    for(String s : this.linkIds){                                               // process all the edges
+      updateLink(s,linkIds.contains(s));                                        // select the ones in parameter and unselect the others
     }
   }
   
@@ -283,59 +315,71 @@ public class MyGraph implements ViewerListener, MouseInputListener{
    */
   @Override
   public void mouseReleased(MouseEvent e) {
+    if(!graphBuilt){return;}
     fromViewer.pump();
   }
   
   /**
+   * Catch the mouse click event and propose several features.
+   *  - one click of the left button: nothing for now
+   *  - two clicks of the left button: select the node and all its attached 
+   *    edges, update the main IHM with information on the element it represents
+   *  - one click on the right button: feature the link addition mode with the 
+   *    first click setting the origin of the edge and the second click setting
+   *    the end of the edge that is then created.
    * 
-   * @param e 
+   *  Other features are to be made in the future... maybe.
+   *
+   * @param e The event catched.
    */
   @Override
   public void mouseClicked(MouseEvent e){
-    
-    String nodeId = "";
-    for(String id : this.nodeIds){
+    if(!graphBuilt){return;}
+    String nodeId = "";                                                         // check all existing nodes
+    for(String id : this.nodeIds){                                              // in order to find the one "under" the cursor
        Object[] xy = graph.getNode(id).getArray("xyz");
-       double x = this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).x;
-       double y = this.viewer.getDefaultView().getCamera().transformGuToPx((Double)xy[0], (Double)xy[1], 0).y;
-       if((x - NODE_SIZE/2 < e.getPoint().x && e.getPoint().x < x + NODE_SIZE/2)
-       && (y - NODE_SIZE/2 < e.getPoint().y && e.getPoint().y < y + NODE_SIZE/2)
+       double x = this.viewer.getDefaultView().getCamera()                      // transform the graph coordinate into JPanel coordinate (for X)
+               .transformGuToPx((Double)xy[0], (Double)xy[1], 0).x;
+       double y = this.viewer.getDefaultView().getCamera()                      // transform the graph coordinate into JPanel coordinate (for Y)
+               .transformGuToPx((Double)xy[0], (Double)xy[1], 0).y;
+       if((x - NODE_SIZE/2 < e.getPoint().x && e.getPoint().x < x + NODE_SIZE/2)// does not take into account overlapping nodes
+       && (y - NODE_SIZE/2 < e.getPoint().y && e.getPoint().y < y + NODE_SIZE/2)// and return true for the first one tested
        ){
-         nodeId = id;
+         nodeId = id;                                                           // this should be the node under the cursor.
        }//if
     }//for
-    if(!"".equals(nodeId)){
-      if(e.getButton() == MouseEvent.BUTTON1){
-        if(e.getClickCount() == 2){
+    if(!"".equals(nodeId)){                                                     // if a node has been found
+      if(e.getButton() == MouseEvent.BUTTON1){                                  // click on the left button
+        if(e.getClickCount() == 2){                                             // two clicks
         ArrayList<String> nodeLinks = new ArrayList<>();
-        for(Edge edge : graph.getNode(nodeId).getEdgeSet()){
-          nodeLinks.add(edge.getId());
+        for(Edge edge : graph.getNode(nodeId).getEdgeSet()){                    // retrieve all the edges attached to the node
+          nodeLinks.add(edge.getId());                          
         }
-        updateNodesAndLinks(nodeId,nodeLinks);
-        this.ihm.selectElement(nodeId);
+        updateNodesAndLinks(nodeId,nodeLinks);                                  // update the node and its edges to selected state
+        this.ihm.selectElement(nodeId);                                         // display info about the selected element on the main IHM
         }
-        else if(e.getClickCount() == 1){
+        else if(e.getClickCount() == 1){                                        // one click
         }
       }// if BUTTON1
-      if(e.getButton() == MouseEvent.BUTTON3){
-        boolean error = false;
-        if("".equals(firstSelectedForLinkCreation)){
-          firstSelectedForLinkCreation = nodeId; 
+      if(e.getButton() == MouseEvent.BUTTON3){                                  // click on the right button
+        boolean error = false;                  
+        if("".equals(firstSelectedForLinkCreation)){                            // there is no beginning for the edge yet
+          firstSelectedForLinkCreation = nodeId;                                // so the node under the cursor is set as the beginning  of the next edge
         }
-        else{
-          try{
-            addLink(firstSelectedForLinkCreation,nodeId);
-            this.ihm.addPreviousOrNext(firstSelectedForLinkCreation, nodeId, "next");
-            this.ihm.addPreviousOrNext(nodeId, firstSelectedForLinkCreation, "previous");
-            firstSelectedForLinkCreation = "";
-          }
-          catch(RPGSCException ex){
+        else{                                                                   // there is a node selected as the beginning of the next edge
+          try{  
+            addLink(firstSelectedForLinkCreation,nodeId);                       // thus an edge is created between the previously selected node and the currently one
+            this.ihm.addPreviousOrNext(firstSelectedForLinkCreation, nodeId, "next");     // echo the edge creation into the scenario
+            this.ihm.addPreviousOrNext(nodeId, firstSelectedForLinkCreation, "previous"); // echo the edge creation into the scenario
+            firstSelectedForLinkCreation = "";                                  // reset the selection of the beginning of the edge
+          }catch(RPGSCException ex){
             firstSelectedForLinkCreation = "";
             error = true;
           }
         } 
-        this.ihm.setFirstForLinkCreation(error ? "This link is already existing..." : firstSelectedForLinkCreation,error);
-      }
+        this.ihm.setFirstForLinkCreation(error ? "This edge is already existing..." : firstSelectedForLinkCreation,error);  // inform the main IHM of the edge creation or 
+                                                                                                                            // of an error (mainly an existing edge).
+      }//if BUTTON3
     }//if nodeId != ""
   }
   
@@ -344,7 +388,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   /****************************************************************************/
   
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param id 
    */
   @Override
@@ -353,7 +397,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param id 
    */
   @Override
@@ -362,7 +406,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
   
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param id 
    */
   @Override
@@ -370,7 +414,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param e 
    */
   @Override
@@ -379,7 +423,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param e 
    */
   @Override
@@ -388,7 +432,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param e 
    */
   @Override
@@ -397,7 +441,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param e 
    */
   @Override
@@ -406,7 +450,7 @@ public class MyGraph implements ViewerListener, MouseInputListener{
   }
 
   /**
-   * 
+   * Unused methode here for override prupose... for now.
    * @param e 
    */
   @Override

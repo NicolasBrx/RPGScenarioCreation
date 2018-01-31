@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -60,7 +61,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   public RPGScenarioCreationIHM() {
     initComponents();                                                           // auto-generated
     
-    this.setTitle("RPGScenario Management v.0.9.0");                            // title of the frame and software
+    this.setTitle("RPGScenario Management v.1.0.0");                            // title of the frame and software
     URL iconURL = getClass().getResource("favicon.png");                        // icon for the frame
     ImageIcon icon = new ImageIcon(iconURL);
     this.setIconImage(icon.getImage());
@@ -235,6 +236,9 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     jlblScenarioTitle = new javax.swing.JLabel();
     jButton3 = new javax.swing.JButton();
     jlblLinkCreation = new javax.swing.JLabel();
+    jMenuBar1 = new javax.swing.JMenuBar();
+    jMenuHelp = new javax.swing.JMenu();
+    Instruction = new javax.swing.JMenuItem();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setMinimumSize(new java.awt.Dimension(1024, 677));
@@ -258,6 +262,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     jLabel2.setText("Element Core: ");
 
     jtxtElementCore.setColumns(20);
+    jtxtElementCore.setLineWrap(true);
     jtxtElementCore.setRows(5);
     jScrollPane1.setViewportView(jtxtElementCore);
 
@@ -328,9 +333,23 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     });
 
     jlblLinkCreation.setText("First element for link creation: ");
-    jlblLinkCreation.setMaximumSize(new java.awt.Dimension(330, 16));
-    jlblLinkCreation.setMinimumSize(new java.awt.Dimension(330, 16));
-    jlblLinkCreation.setPreferredSize(new java.awt.Dimension(330, 16));
+    jlblLinkCreation.setMaximumSize(new java.awt.Dimension(495, 16));
+    jlblLinkCreation.setMinimumSize(new java.awt.Dimension(495, 16));
+    jlblLinkCreation.setPreferredSize(new java.awt.Dimension(495, 16));
+
+    jMenuHelp.setText("Help");
+
+    Instruction.setText("Instructions");
+    Instruction.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        InstructionActionPerformed(evt);
+      }
+    });
+    jMenuHelp.add(Instruction);
+
+    jMenuBar1.add(jMenuHelp);
+
+    setJMenuBar(jMenuBar1);
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -374,9 +393,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jlblScenarioTitle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(jpanelGraphView, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addGroup(layout.createSequentialGroup()
-            .addGap(0, 0, Short.MAX_VALUE)
-            .addComponent(jlblLinkCreation, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE)))
+          .addComponent(jlblLinkCreation, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
@@ -439,7 +456,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(jpanelGraphView, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGap(34, 34, 34)))
-        .addGap(8, 14, Short.MAX_VALUE))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     pack();
@@ -461,31 +478,55 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     }catch(BadLocationException e){e.printStackTrace();}// TODO: better error
     
     String id;                                                                  // temporary String for id use
+    boolean created = false;                                                    // temporary boolean to know if element has been added
     if(jtxtElementId.getText().isEmpty()){                                      // if the id is not set
-      id = this.myScenario.addElement(tmpCore);                                 // one will be auto generated
+      id = this.myScenario.addElement(tmpCore,false);                           // one will be auto generated
+      if(id.equalsIgnoreCase("already existing")){                              // element already exists in the scenario
+        int dialogButton = JOptionPane.YES_NO_OPTION;                           // propose to do force erase the existing element
+        int dialogResult = JOptionPane.showConfirmDialog (null, "Element is already existing, force replace?","Warning",dialogButton);
+        if(dialogResult == JOptionPane.YES_OPTION){
+          id = this.myScenario.addElement(tmpCore,true);
+          created = true;
+        }
+      }//if already existing element
+      else{
+        created = true;
+      }
     }
     else{
-      id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore);
+      id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore,false);   
+      if(id.equalsIgnoreCase("already existing")){                              // element already exists in the scenario
+        int dialogButton = JOptionPane.YES_NO_OPTION;                           // propose to do force erase the existing element
+        int dialogResult = JOptionPane.showConfirmDialog (null, "Element is already existing, force replace?","Warning",dialogButton);
+        if(dialogResult == JOptionPane.YES_OPTION){
+          id = this.myScenario.addElement(jtxtElementId.getText(),tmpCore,true);
+          created = true;
+        }
+      }//if already existing element
+      else{
+        created = true;
+      }
     }
+    if(created){
+      if(!elementList.contains(id)){                                            // if the id is not already in the list
+        elementList.addElement(id);                                             // add it
+        jlistElement.setModel(elementList);                                     // and update the view
+      }
     
-    if(!elementList.contains(id)){                                              // if the id is not already in the list
-      elementList.addElement(id);                                               // add it
-      jlistElement.setModel(elementList);                                       // and update the view
-    }
+      if(jlblScenarioTitle.getText().equalsIgnoreCase("")){                     // set the title of the scenario if it
+        jlblScenarioTitle.setText(this.myScenario.getTitle());                  // has not been made before
+      }
     
-    if(jlblScenarioTitle.getText().equalsIgnoreCase("")){                       // set the title of the scenario if it
-      jlblScenarioTitle.setText(this.myScenario.getTitle());                    // has not been made before
-    }
-    
-    scenarioGraph.addNode(id);                                                  // add the element as a new node in the graph 
+      scenarioGraph.addNode(id);                                                // add the element as a new node in the graph 
                                                                                 // representing the scenario
     
-    jtxtElementId.setText("");                                                  // erase all the field for further inputs
-    try{
-      doc.remove(0, doc.getLength());
-    }catch(BadLocationException e){e.printStackTrace();}
-    
-    save(true);                                                                 // the scenario has been modified
+      jtxtElementId.setText("");                                                // erase all the field for further inputs
+      try{
+        doc.remove(0, doc.getLength());
+      }catch(BadLocationException e){e.printStackTrace();}
+      scenarioGraph.addPipe();                                                  // add the listeners on the graph visualisation
+      save(true);                                                               // the scenario has been modified
+    }
   }//GEN-LAST:event_jbtnAddElementActionPerformed
 
   private void jbtnRemoveElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRemoveElementActionPerformed
@@ -573,6 +614,25 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
     }
   }//GEN-LAST:event_jButton3ActionPerformed
 
+  private void InstructionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InstructionActionPerformed
+    // Just a message to quick instructions...
+    final String s = "Welcome to the Scenario Management Interface.<br /><br />"
+            + "Here you can work on scenario for tabletop rpg (as intended initially for this software) or for everything else. " 
+            + "A scenario is seen as several component linked ones with each other by causes and consequences. One component would then "
+            + "be seen as a sequence of actions taken in order to reach one goal that will, or will not, help to reach the scenario global aim. <br /><br />"
+            + "You can create an element by filling its course of actions in the dedicated field. The id of the element is facultative and will be "
+            + "auto-generated if none is set. "
+            + "Each element is represented by a node on the graphical view. Righ click on a node allows to create a link between two nodes (or a loop on the "
+            + "current node) to symbolize cause (start of the link) and consequence (end of the link).<br /><br />"
+            + ""
+            + "You can then select nodes, see the links and several other things.<br /><br />"
+            + ""
+            + "Message the author for every improvement you might think of. Cheers.";
+    final String html1 = "<html><body style='width: ";
+    final String html2 = "px'>";
+    JOptionPane.showMessageDialog(null, new JLabel(html1 + "400" + html2 + s));
+  }//GEN-LAST:event_InstructionActionPerformed
+
   /**
    * Launching the thread containing the user interface
    * (auto-generated)
@@ -612,6 +672,7 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JMenuItem Instruction;
   private javax.swing.JButton jButton1;
   private javax.swing.JButton jButton3;
   private javax.swing.JLabel jLabel1;
@@ -620,6 +681,8 @@ public class RPGScenarioCreationIHM extends javax.swing.JFrame {
   private javax.swing.JLabel jLabel4;
   private javax.swing.JLabel jLabel5;
   private javax.swing.JLabel jLabel6;
+  private javax.swing.JMenuBar jMenuBar1;
+  private javax.swing.JMenu jMenuHelp;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JButton jbtnAddElement;

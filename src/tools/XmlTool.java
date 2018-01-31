@@ -118,7 +118,7 @@ public class XmlTool {
         for(Element core : cores){
           coresToAdd.add(core.getText());
         }//for core in cores
-        toReturn.addElement(elementId, coresToAdd);
+        toReturn.addElement(elementId, coresToAdd,true);
         List<Element> previouses = element.getChild("previousIds").getChildren();
         for(Element previous : previouses){
           toReturn.getElement(elementId).addPreviousElement(previous.getText());

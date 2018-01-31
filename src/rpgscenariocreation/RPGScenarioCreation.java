@@ -5,7 +5,8 @@ import ihm.RPGScenarioCreationIHM;
 /**
  * This project is dedicated to Scenario creation for several tabletop RPG.
  * Will ideally include some learning to adapt to user preference.
- * @author nicolas
+ * 
+ * @author Nicolas Brax
  */
 public class RPGScenarioCreation {
   
@@ -13,9 +14,15 @@ public class RPGScenarioCreation {
    * @param args the command line arguments
    */
   public static void main(String[] args) {
-    
-    RPGScenarioCreationIHM ihm = new RPGScenarioCreationIHM();
-    ihm.setVisible(true);
+    try {
+      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+        if ("Nimbus".equals(info.getName())) {
+          javax.swing.UIManager.setLookAndFeel(info.getClassName());
+          break;
+        }
+      }
+    }catch(Exception ex){}
+    new RPGScenarioCreationIHM().setVisible(true);
 
     /* THOUGHTS FOR RANDOM GENERATION
       Un scenario c'est :
