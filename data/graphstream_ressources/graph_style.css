@@ -1,0 +1,36 @@
+node{
+  fill-color: black;
+  text-alignment: right;
+  text-background-mode: rounded-box;
+  text-background-color: black;
+  text-color: #D7DF01;
+  size-mode: dyn-size;
+  shape: rounded-box;
+}
+
+node.selected{
+  fill-color: #298A08;
+  text-background-color: #298A08;
+}
+
+node.unselected{
+  fill-color: #013ADF;
+  text-background-color: #013ADF;
+}
+
+edge{
+  arrow-shape: arrow;
+}
+
+edge.selected{
+  size-mode: dyn-size;
+  shape: angle;
+  fill-color: #298A08;
+}
+
+edge.unselected{
+  
+}
+
+/* http://graphstream-project.org/doc/Advanced-Concepts/GraphStream-CSS-Reference/ */
+/* http://graphstream-project.org/doc/Tutorials/Storing-retrieving-and-displaying-data-in-graphs/ */

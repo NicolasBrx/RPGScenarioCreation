@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario>
+  <title>Scenario Test</title>
+  <elements>
+    <element id="phase 1">
+      <cores>
+        <core>Les aventuriers sont à la taverne.</core>
+        <core>Le troll déclenche une baguarre.</core>
+        <core>Le menestrel rejoint le groupe.</core>
+      </cores>
+      <nextIds>
+        <nextId>phase 1.1</nextId>
+        <nextId>phase 1.2</nextId>
+      </nextIds>
+      <previousIds>
+        <previousId>start</previousId>
+      </previousIds>
+    </element>
+    <element id="phase 1.2">
+      <cores>
+        <core>Quelconque aventure.</core>
+        <core>Le menestrel survit.</core>
+      </cores>
+      <nextIds>
+        <nextId>phase 2</nextId>
+      </nextIds>
+      <previousIds>
+        <previousId>phase 1</previousId>
+      </previousIds>
+    </element>
+    <element id="phase 2">
+      <cores>
+        <core>Les aventuriers, après moult combat arrive devant la porte du boss...</core>
+        <core>Ils sont mal barrés.</core>
+      </cores>
+      <nextIds>
+        <nextId>fin échec</nextId>
+        <nextId>fin succès</nextId>
+      </nextIds>
+      <previousIds>
+        <previousId>phase 1.2</previousId>
+        <previousId>phase 1.1</previousId>
+      </previousIds>
+    </element>
+    <element id="start">
+      <cores>
+        <core>Les aventuriers se retrouvent devant la porte du donjon.</core>
+        <core>L'elfe sonne pour qu'on leur ouvre devant les yeux héberlués de ses compagnons.</core>
+        <core>Contre toute attente, les aventuriers entrent dans le donjon.</core>
+      </cores>
+      <nextIds>
+        <nextId>phase 1</nextId>
+      </nextIds>
+      <previousIds />
+    </element>
+    <element id="fin succès">
+      <cores>
+        <core>Les aventuriers sont vainqueurs !!</core>
+        <core>Ils remportent une grosse récompense...</core>
+      </cores>
+      <nextIds />
+      <previousIds>
+        <previousId>phase 2</previousId>
+      </previousIds>
+    </element>
+    <element id="phase 1.1">
+      <cores>
+        <core>Quelconque aventure.</core>
+        <core>Le menestre meurt.</core>
+      </cores>
+      <nextIds>
+        <nextId>phase 2</nextId>
+      </nextIds>
+      <previousIds>
+        <previousId>phase 1</previousId>
+      </previousIds>
+    </element>
+    <element id="fin échec">
+      <cores>
+        <core>Les aventuriers sont morts... honteusement... sans honneur ni gloire...</core>
+      </cores>
+      <nextIds />
+      <previousIds>
+        <previousId>phase 2</previousId>
+      </previousIds>
+    </element>
+  </elements>
+</scenario>

@@ -1,0 +1,18 @@
+<races>
+  <game type="generic">
+    <race score="50">human</race>
+  </game>
+  <game type="fantasy">
+    <race score="50">elf</race>
+    <race score="50">dwarf</race>
+    <race score="50">gnome</race>
+    <race score="50">half-orc</race>
+    <race score="50">half-elf</race>
+    <race score="50">orc</race>
+    <race score="50">dragon</race>
+    <race score="50">half-troll</race>
+  </game>
+  <game type="SF">
+    <race score="50">alien</race>
+  </game>
+</races>
