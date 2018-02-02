@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario>
+  <title>The title of the scenario</title>
+  <elements>
+    <element id="Element001">
+      <cores>
+        <core />
+      </cores>
+      <nextIds>
+        <nextId>element01</nextId>
+      </nextIds>
+      <previousIds />
+    </element>
+    <element id="element02">
+      <cores>
+        <core>Que fait un element.</core>
+        <core>Il liste</core>
+        <core>les differentes phases</core>
+        <core>d'une etape</core>
+        <core>dans le scenario</core>
+      </cores>
+      <nextIds />
+      <previousIds>
+        <previousId>element01</previousId>
+      </previousIds>
+    </element>
+    <element id="element01">
+      <cores>
+        <core>Description de l'element.</core>
+        <core>Quelques</core>
+        <core>mots</core>
+        <core>sur</core>
+        <core>l'element</core>
+        <core>actuel</core>
+      </cores>
+      <nextIds>
+        <nextId>element02</nextId>
+      </nextIds>
+      <previousIds>
+        <previousId>Element001</previousId>
+      </previousIds>
+    </element>
+  </elements>
+</scenario>

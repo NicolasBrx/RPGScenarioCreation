@@ -23,7 +23,7 @@
         excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA"/>
     </zip>
     
-    <copy todir="${store.dir}">
+    <copy todir="${store.dir}/data">
       <fileset dir="data/" />
     </copy>
     
