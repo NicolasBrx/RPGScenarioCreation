@@ -1,6 +1,8 @@
 package rpgscenariocreation;
 
 import ihm.RPGScenarioCreationIHM;
+import javax.swing.UnsupportedLookAndFeelException;
+import tools.RPGSCException;
 
 /**
  * This project is dedicated to Scenario creation for several tabletop RPG.
@@ -11,9 +13,15 @@ import ihm.RPGScenarioCreationIHM;
 public class RPGScenarioCreation {
   
   /**
-   * @param args the command line arguments
+   * 
    */
-  public static void main(String[] args) {
+  public static RPGScenarioCreationIHM ihm;
+  
+  /**
+   * @param args the command line arguments
+   * @throws tools.RPGSCException
+   */
+  public static void main(String[] args) throws RPGSCException {
     try {
       for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
         if ("Nimbus".equals(info.getName())) {
@@ -21,8 +29,12 @@ public class RPGScenarioCreation {
           break;
         }
       }
-    }catch(Exception ex){}
-    new RPGScenarioCreationIHM().setVisible(true);
+    }catch(ClassNotFoundException | InstantiationException 
+            | IllegalAccessException | UnsupportedLookAndFeelException ex){
+      throw new RPGSCException("Can't set the UI Look and Feel.");
+    }
+    ihm = new RPGScenarioCreationIHM();
+    ihm.setVisible(true);
 
     /* THOUGHTS FOR RANDOM GENERATION
       Un scenario c'est :
@@ -90,6 +102,14 @@ public class RPGScenarioCreation {
         3.1. Apprentissage.
         3.2. Score sur les différents points utilisés.
     */
+  }
+  
+  /**
+   * 
+   * @return 
+   */
+  public RPGScenarioCreationIHM getMainFrame(){
+    return ihm;
   }
   
 }
